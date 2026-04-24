@@ -18,7 +18,7 @@ from pathlib import Path
 try:
     import fitz  # PyMuPDF
 except ImportError:
-    sys.exit("Fehler: PyMuPDF nicht installiert. Bitte ausführen: pip install pymupdf")
+    sys.exit("Error: PyMuPDF is not installed. Please run: pip install pymupdf")
 
 # ── Colors: Speechify name → PDF-RGB (0..1 each) ───────────────────────────
 
@@ -91,7 +91,7 @@ def find_start_rects(page: fitz.Page, search_text: str) -> list[fitz.Rect]:
     """
     words_in_text = search_text.split()
 
-    # Kurze Texte (1-2 Wörter): direkt suchen, auch mit/ohne Satzzeichen
+    # Short texts (1-2 words): search directly, with and without punctuation
     if len(words_in_text) <= 2:
         for query in [search_text, search_text.rstrip(".,;:")]:
             rects = page.search_for(query)
@@ -99,14 +99,14 @@ def find_start_rects(page: fitz.Page, search_text: str) -> list[fitz.Rect]:
                 return [rects[0]]
         return []
 
-    # Versuche Prefixe verschiedener Länge (kurz genug um Silbentrennung zu umgehen)
+    # Try progressively shorter prefixes to work around hyphenation
     for n_words in range(min(8, len(words_in_text)), 2, -1):
         fragment = " ".join(words_in_text[:n_words])
         rects = page.search_for(fragment)
         if rects:
-            return [rects[0]]  # Nur erste Fundzeile = Startpunkt
+            return [rects[0]]  # Only first found line = start point
 
-    # Fallback: ab zweitem Wort
+    # Fallback: start from second word
     for start in range(1, min(4, len(words_in_text))):
         for n in range(min(7, len(words_in_text) - start), 2, -1):
             fragment = " ".join(words_in_text[start:start + n])
@@ -124,7 +124,7 @@ def get_rects_in_range(
     Returns word rects of all lines between y_start and y_end.
     y_end=None means until end of page.
     """
-    page_bottom = page.rect.height - 30  # unterer Rand freilassen
+    page_bottom = page.rect.height - 30  # leave bottom margin
     if y_end is None:
         y_end = page_bottom
 
@@ -149,7 +149,7 @@ def get_rects_between_texts(
     """
     y_start = start_rects[0].y0
 
-    # Suche das Ende via Suffix
+    # Find the end position via suffix search
     words_in_text = search_text.split()
     end_rects = []
     for n_words in range(min(8, len(words_in_text)), 2, -1):
@@ -280,12 +280,12 @@ def main():
         color = COLOR_MAP.get(h["color"], DEFAULT_COLOR)
 
         if not h["truncated"]:
-            # Vollständiger Text: Anfang bis Ende des bekannten Textes
+            # Full text: span from start to end of known text
             start_rects = find_start_rects(page, h["text"])
             final_rects = get_rects_between_texts(page, h["text"], start_rects)
         else:
-            # Abgeschnittener Text: von Startzeile bis Startzeile des nächsten
-            # Highlights auf derselben Seite (oder Seitenende)
+            # Truncated text: from start line to start of next highlight on
+            # the same page (or end of page)
             y_end = None
             for j in range(i + 1, len(located)):
                 next_page, next_y, _ = located[j]

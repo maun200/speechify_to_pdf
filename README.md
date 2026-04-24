@@ -1,6 +1,19 @@
 # speechify-to-pdf
 
-Transfers Speechify annotations as real PDF annotations into your local original file — compatible with Citavi, Zotero, Adobe Acrobat, and all other PDF readers.
+**Transfer your Speechify highlights directly into your PDF** — as real, standard-compliant PDF annotations, compatible with Citavi, Zotero, Adobe Acrobat, Okular, and every other PDF reader.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate/?business=m.gruda%40web.de&currency_code=EUR)
+
+> If this tool saves you time, consider buying me a coffee ☕  
+> **[➡ Donate via PayPal](https://www.paypal.com/donate/?business=m.gruda%40web.de&currency_code=EUR)**
+
+---
+
+## What it does
+
+Speechify lets you read and highlight PDFs — but your highlights stay locked inside Speechify. This tool extracts them from the saved HTML export and writes them back into your local PDF as proper annotations. Your highlights, your PDF, your reader.
 
 ## Requirements
 
@@ -33,16 +46,19 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf"
 
 This creates `Book_highlights.pdf` in the same folder as the original PDF.
 
-Set a custom output path:
-
+**Custom output path:**
 ```bash
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -o "Book_annotated.pdf"
 ```
 
-Print all highlights with details:
-
+**Print all highlights with details:**
 ```bash
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -v
+```
+
+**Auto-detect the PDF (if HTML filename matches):**
+```bash
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"
 ```
 
 ## What gets transferred?
@@ -75,9 +91,24 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -v
 **`ModuleNotFoundError: No module named 'fitz'`**
 → Run `pip install pymupdf`.
 
+## Roadmap
+
+- [ ] GUI (tkinter drag-and-drop) for non-technical users
+- [ ] Standalone executable (PyInstaller / `.exe` / `.app`)
+- [ ] Support for newer Speechify export formats
+- [ ] Batch processing of multiple files
+
 ## Contributing
 
-Pull requests and issue reports are welcome! Please open an issue before starting work on larger changes.
+Pull requests and issue reports are welcome!  
+Please open an issue before starting work on larger changes.  
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## Support the project
+
+This tool is free and open-source. If it saves you time, a small donation helps keep it maintained and improved:
+
+**[☕ Donate via PayPal](https://www.paypal.com/donate/?business=m.gruda%40web.de&currency_code=EUR)**
 
 ## License
 
