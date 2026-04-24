@@ -1,0 +1,6 @@
+*.html
+*_files/
+.claude/
+*_highlights.pdf
+__pycache__/
+*.pyc
