@@ -1,72 +1,84 @@
 # speechify-to-pdf
 
-Überträgt Speechify-Markierungen als echte PDF-Annotationen in die lokale Originaldatei — kompatibel mit Citavi, Zotero, Adobe Acrobat und allen anderen PDF-Readern.
+Transfers Speechify annotations as real PDF annotations into your local original file — compatible with Citavi, Zotero, Adobe Acrobat, and all other PDF readers.
 
-## Voraussetzungen
+## Requirements
 
 ```bash
 pip install pymupdf
 ```
 
-Python 3.10 oder neuer.
+Python 3.10 or newer.
 
-## Kurzanleitung
+## Quick Start
 
-### 1. Speechify-Seite im Browser speichern
+### 1. Save the Speechify page in your browser
 
-1. Das Dokument in Speechify öffnen (app.speechify.com)
-2. Im Browser: **Datei → Seite speichern unter** (oder `Strg+S`)
-3. Format wählen: **„Webseite, vollständig"** (nicht nur HTML)
-4. Gespeichert wird z. B.:
+1. Open the document in Speechify (app.speechify.com)
+2. In your browser: **File → Save Page As** (or `Ctrl+S`)
+3. Choose format: **"Webpage, Complete"** (not HTML only)
+4. The result will look like:
    ```
-   Buch.pdf _ Speechify.html
-   Buch.pdf _ Speechify_files/   ← Ordner muss daneben liegen
+   Book.pdf _ Speechify.html
+   Book.pdf _ Speechify_files/   ← folder must be next to the HTML file
    ```
 
-> **Hinweis:** Die Seitenleiste mit den Markierungen muss sichtbar sein, wenn du speicherst. Falls sie eingeklappt ist, aufklappen (Symbol oben links) und erneut speichern.
+> **Note:** The sidebar with highlights must be visible when you save. If it is collapsed, expand it (icon in the top left) and save again.
 
-### 2. Script ausführen
-
-```bash
-python3 speechify_to_pdf.py "Buch.pdf _ Speechify.html" "Buch.pdf"
-```
-
-Das erzeugt `Buch_highlights.pdf` im selben Ordner wie die Originaldatei.
-
-Eigenen Ausgabepfad festlegen:
+### 2. Run the script
 
 ```bash
-python3 speechify_to_pdf.py "Buch.pdf _ Speechify.html" "Buch.pdf" -o "Buch_annotiert.pdf"
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf"
 ```
 
-Alle Markierungen einzeln ausgeben:
+This creates `Book_highlights.pdf` in the same folder as the original PDF.
+
+Set a custom output path:
 
 ```bash
-python3 speechify_to_pdf.py "Buch.pdf _ Speechify.html" "Buch.pdf" -v
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -o "Book_annotated.pdf"
 ```
 
-## Was wird übertragen?
+Print all highlights with details:
 
-| Speechify-Element | PDF-Annotation |
+```bash
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -v
+```
+
+## What gets transferred?
+
+| Speechify element | PDF annotation |
 |---|---|
-| Gelbe Markierung | Gelbes Highlight |
-| Pinke Markierung | Pinkes Highlight |
-| Notiz zur Markierung | Kommentar an der Annotation |
-| Seitennummer | Korrekte PDF-Seite (±2 Seiten Toleranz) |
+| Yellow highlight | Yellow highlight |
+| Pink highlight | Pink highlight |
+| Blue highlight | Blue highlight |
+| Green highlight | Green highlight |
+| Orange highlight | Orange highlight |
+| Purple highlight | Purple highlight |
+| Note on a highlight | Comment on the annotation |
+| Page number | Correct PDF page (±2 pages tolerance) |
 
-## Einschränkungen
+## Limitations
 
-- **Abgeschnittene Texte:** Speechify zeigt in der Seitenleiste nur die ersten ~80 Zeichen eines langen Highlights. Das Script markiert in diesem Fall nur den sichtbaren Anfang — der Rest der Passage bleibt unmarkiert. Der Volltext ist in der gespeicherten HTML leider nicht vorhanden.
-- **Bildseiten / gescannte PDFs:** Auf reinen Bildseiten ohne eingebetteten Text kann keine Textposition gefunden werden (kein OCR).
-- **Seitenoffset:** Das Script sucht auf der angegebenen Seite ± 2 Seiten. Bei ungewöhnlichen Offsets (z. B. Bücher mit langen Vorwörtern) kann es zu vereinzelten Fehlzuordnungen kommen.
+- **Truncated texts:** Speechify only shows the first ~80 characters of a long highlight in the sidebar. The script marks only the visible beginning — the rest of the passage remains unmarked, as the full text is not available in the saved HTML.
+- **Image pages / scanned PDFs:** On pure image pages without an embedded text layer, no text position can be found (no OCR).
+- **Page offset:** The script searches on the indicated page ±2 pages. With unusual offsets (e.g. books with long prefaces) there may be occasional mismatches.
 
 ## Troubleshooting
 
-**„Keine Markierungen gefunden"**
-→ Die Seitenleiste war beim Speichern eingeklappt. Aufklappen, Seite neu laden, erneut speichern.
+**"No highlights found"**
+→ The sidebar was collapsed during saving. Expand it, reload the page, and save again.
 
-**Viele „NICHT GEFUNDEN"**
-→ HTML und PDF könnten aus unterschiedlichen Versionen des Buches stammen. Oder: die PDF enthält gescannten Text ohne Textlayer.
+**Many "NOT FOUND"**
+→ The HTML and PDF might be from different versions of the book. Or: the PDF contains scanned text without a text layer.
 
 **`ModuleNotFoundError: No module named 'fitz'`**
-→ `pip install pymupdf` ausführen.
+→ Run `pip install pymupdf`.
+
+## Contributing
+
+Pull requests and issue reports are welcome! Please open an issue before starting work on larger changes.
+
+## License
+
+MIT

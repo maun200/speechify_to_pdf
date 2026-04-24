@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-speechify_to_pdf.py — Speechify-Markierungen → PDF-Annotationen
+speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Liest eine gespeicherte Speechify-HTML-Seite ("Speichern unter" im Browser)
-und überträgt alle Highlights als echte PDF-Annotationen in die lokale PDF-Datei.
+Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
+all highlights as real PDF annotations into the local PDF file.
 
-Verwendung:
-    python3 speechify_to_pdf.py "Buch.pdf _ Speechify.html" "Buch.pdf"
-    python3 speechify_to_pdf.py "Buch.pdf _ Speechify.html"   # PDF-Pfad wird automatisch gesucht
+Usage:
+    python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf"
+    python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"   # PDF path auto-detected
 """
 
 import argparse
@@ -20,7 +20,7 @@ try:
 except ImportError:
     sys.exit("Fehler: PyMuPDF nicht installiert. Bitte ausführen: pip install pymupdf")
 
-# ── Farben: Speechify-Name → PDF-RGB (je 0..1) ──────────────────────────────
+# ── Colors: Speechify name → PDF-RGB (0..1 each) ───────────────────────────
 
 COLOR_MAP = {
     "yellow": (1.0, 0.93, 0.0),
@@ -32,21 +32,24 @@ COLOR_MAP = {
 }
 DEFAULT_COLOR = (1.0, 0.93, 0.0)
 
-# ── HTML parsen ──────────────────────────────────────────────────────────────
+# Page label words across Speechify UI languages
+_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|Страница|страница|Strana|Sayfa)"
+
+# ── HTML parsing ─────────────────────────────────────────────────────────────
 
 def extract_highlights(html_path: Path) -> list[dict]:
     """
-    Gibt eine Liste von Dicts zurück:
+    Returns a list of dicts:
       { page: int, color: str, text: str, note: str|None, truncated: bool }
-    'page' ist die gedruckte Seitennummer aus der Speechify-Sidebar.
-    Die Liste ist in Dokumentreihenfolge (Seite aufsteigend, dann Reihenfolge im HTML).
+    'page' is the printed page number from the Speechify sidebar.
+    List is in document order (page ascending, then HTML order).
     """
     content = html_path.read_text(encoding="utf-8")
-    sections = re.split(r"(?=Seite \d+</span></button>)", content)
+    sections = re.split(rf"(?={_PAGE_WORDS} \d+</span></button>)", content)
 
     highlights = []
     for section in sections:
-        page_m = re.match(r"Seite (\d+)", section)
+        page_m = re.match(rf"{_PAGE_WORDS} (\d+)", section)
         if not page_m:
             continue
         page_num = int(page_m.group(1))
@@ -78,13 +81,13 @@ def extract_highlights(html_path: Path) -> list[dict]:
     return highlights
 
 
-# ── Textsuche ────────────────────────────────────────────────────────────────
+# ── Text search ──────────────────────────────────────────────────────────────
 
 def find_start_rects(page: fitz.Page, search_text: str) -> list[fitz.Rect]:
     """
-    Sucht den Beginn des Textes auf der Seite.
-    Verwendet progressiv kürzere Prefixe um Silbentrennung zu umgehen.
-    Gibt die Rects der ersten Fundzeile zurück.
+    Finds the start position of text on the page.
+    Uses progressively shorter prefixes to work around hyphenation.
+    Returns rects of the first found line.
     """
     words_in_text = search_text.split()
 
@@ -118,8 +121,8 @@ def get_rects_in_range(
     page: fitz.Page, y_start: float, y_end: float | None
 ) -> list[fitz.Rect]:
     """
-    Gibt Word-Rects aller Zeilen zurück, die zwischen y_start und y_end liegen.
-    y_end=None bedeutet bis Seitenende.
+    Returns word rects of all lines between y_start and y_end.
+    y_end=None means until end of page.
     """
     page_bottom = page.rect.height - 30  # unterer Rand freilassen
     if y_end is None:
@@ -142,7 +145,7 @@ def get_rects_between_texts(
     page: fitz.Page, search_text: str, start_rects: list[fitz.Rect]
 ) -> list[fitz.Rect]:
     """
-    Für vollständige (nicht abgeschnittene) Texte: span von Anfang bis Ende.
+    For complete (non-truncated) texts: span from start to end of known text.
     """
     y_start = start_rects[0].y0
 
@@ -163,7 +166,7 @@ def get_rects_between_texts(
     return get_rects_in_range(page, y_start, y_end)
 
 
-# ── Annotation einfügen ──────────────────────────────────────────────────────
+# ── Add annotation ───────────────────────────────────────────────────────────
 
 def add_highlight(page: fitz.Page, rects: list[fitz.Rect], color: tuple, note: str | None):
     if not rects:
@@ -175,7 +178,7 @@ def add_highlight(page: fitz.Page, rects: list[fitz.Rect], color: tuple, note: s
     annot.update()
 
 
-# ── PDF-Pfad aus HTML-Dateiname ableiten ─────────────────────────────────────
+# ── Guess PDF path from HTML filename ────────────────────────────────────────
 
 def guess_pdf_path(html_path: Path) -> Path | None:
     name = html_path.stem
@@ -187,7 +190,9 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         html_path.parent,
         html_path.parent.parent,
         Path.home() / "Documents",
-        Path.home() / "Dokumente",
+        Path.home() / "Dokumente",  # German Windows
+        Path.home() / "Desktop",
+        Path.home() / "Downloads",
     ]
     for d in search_dirs:
         if not d.exists():
@@ -198,21 +203,21 @@ def guess_pdf_path(html_path: Path) -> Path | None:
     return None
 
 
-# ── Hauptprogramm ────────────────────────────────────────────────────────────
+# ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Überträgt Speechify-Markierungen als Annotationen in eine lokale PDF-Datei."
+        description="Transfer Speechify highlights as annotations into a local PDF file."
     )
-    parser.add_argument("html", help="Gespeicherte Speechify-HTML-Datei")
-    parser.add_argument("pdf",  nargs="?", help="Lokale PDF-Datei (optional, wird sonst gesucht)")
-    parser.add_argument("-o", "--output", help="Ausgabedatei (Standard: <pdf-name>_highlights.pdf)")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Alle Markierungen mit Details ausgeben")
+    parser.add_argument("html", help="Saved Speechify HTML file")
+    parser.add_argument("pdf",  nargs="?", help="Local PDF file (optional, auto-detected if omitted)")
+    parser.add_argument("-o", "--output", help="Output file (default: <pdf-name>_highlights.pdf)")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Print all highlights with details")
     args = parser.parse_args()
 
     html_path = Path(args.html).expanduser().resolve()
     if not html_path.exists():
-        sys.exit(f"HTML-Datei nicht gefunden: {html_path}")
+        sys.exit(f"HTML file not found: {html_path}")
 
     if args.pdf:
         pdf_path = Path(args.pdf).expanduser().resolve()
@@ -220,13 +225,13 @@ def main():
         pdf_path = guess_pdf_path(html_path)
         if not pdf_path:
             sys.exit(
-                "Konnte PDF-Datei nicht automatisch finden.\n"
-                "Bitte explizit angeben: speechify_to_pdf.py <html> <pdf>"
+                "Could not auto-detect PDF file.\n"
+                "Please specify it explicitly: speechify_to_pdf.py <html> <pdf>"
             )
-        print(f"PDF automatisch gefunden: {pdf_path}")
+        print(f"PDF auto-detected: {pdf_path}")
 
     if not pdf_path.exists():
-        sys.exit(f"PDF-Datei nicht gefunden: {pdf_path}")
+        sys.exit(f"PDF file not found: {pdf_path}")
 
     output_path = (
         Path(args.output).expanduser().resolve()
@@ -234,18 +239,17 @@ def main():
         else pdf_path.parent / (pdf_path.stem + "_highlights.pdf")
     )
 
-    # Highlights aus HTML laden
-    print(f"Lese:  {html_path.name}")
+    print(f"HTML:  {html_path.name}")
     highlights = extract_highlights(html_path)
     if not highlights:
-        sys.exit("Keine Markierungen gefunden. Ist die richtige HTML-Datei angegeben?")
-    print(f"       {len(highlights)} Markierungen gefunden")
+        sys.exit("No highlights found. Is the correct HTML file specified?")
+    print(f"       {len(highlights)} highlights found")
 
     doc = fitz.open(pdf_path)
-    print(f"PDF:   {pdf_path.name}  ({doc.page_count} Seiten)")
+    print(f"PDF:   {pdf_path.name}  ({doc.page_count} pages)")
 
-    # ── Pass 1: Startposition jedes Highlights im PDF finden ────────────────
-    # Ergebnis: Liste von (page_idx | None, y_start | None, highlight-dict)
+    # ── Pass 1: locate start position of each highlight in the PDF ──────────
+    # Result: list of (page_idx | None, y_start | None, highlight-dict)
     located: list[tuple[int | None, float | None, dict]] = []
 
     for h in highlights:
@@ -262,14 +266,14 @@ def main():
 
         located.append((found_page, found_y, h))
 
-    # ── Pass 2: Highlights mit vollständigem Bereich annotieren ─────────────
+    # ── Pass 2: annotate highlights with full rect spans ────────────────────
     done, not_found = 0, []
 
     for i, (page_idx, y_start, h) in enumerate(located):
         if page_idx is None:
             not_found.append(h)
             if args.verbose:
-                print(f"  ✗ S.{h['page']} [{h['color']}] NICHT GEFUNDEN: {h['text'][:60]}")
+                print(f"  ✗ p.{h['page']} [{h['color']}] NOT FOUND: {h['text'][:60]}")
             continue
 
         page  = doc[page_idx]
@@ -294,28 +298,27 @@ def main():
         if not final_rects:
             not_found.append(h)
             if args.verbose:
-                print(f"  ✗ S.{h['page']} [{h['color']}] KEINE RECTS: {h['text'][:60]}")
+                print(f"  ✗ p.{h['page']} [{h['color']}] NO RECTS: {h['text'][:60]}")
             continue
 
         add_highlight(page, final_rects, color, h["note"])
         done += 1
 
         if args.verbose:
-            note_str = f" [Notiz: {h['note']}]" if h["note"] else ""
+            note_str = f" [note: {h['note']}]" if h["note"] else ""
             trunc    = " (…)" if h["truncated"] else ""
             n_lines  = len(final_rects)
-            print(f"  ✓ S.{h['page']} [{h['color']}]{trunc}{note_str} {n_lines} Zeilen: {h['text'][:55]}")
+            print(f"  ✓ p.{h['page']} [{h['color']}]{trunc}{note_str} {n_lines} lines: {h['text'][:55]}")
 
-    # Zusammenfassung
-    print(f"\nErgebnis: {done}/{len(highlights)} Markierungen übertragen.")
+    print(f"\nResult: {done}/{len(highlights)} highlights transferred.")
     if not_found:
-        print(f"Nicht gefunden ({len(not_found)}):")
+        print(f"Not found ({len(not_found)}):")
         for h in not_found:
-            print(f"  S.{h['page']}: {h['text'][:80]}")
+            print(f"  p.{h['page']}: {h['text'][:80]}")
 
     doc.save(output_path, garbage=4, deflate=True)
     doc.close()
-    print(f"\nGespeichert: {output_path}")
+    print(f"\nSaved: {output_path}")
 
 
 if __name__ == "__main__":
