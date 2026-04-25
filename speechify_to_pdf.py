@@ -4,6 +4,8 @@ speechify_to_pdf.py — Speechify highlights → PDF annotations
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
+Highlights are matched exactly: single characters, single lines, and
+multi-page spans are all handled correctly.
 
 Usage:
     python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf"
@@ -35,6 +37,10 @@ DEFAULT_COLOR = (1.0, 0.93, 0.0)
 # Page label words across Speechify UI languages
 _PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|Страница|страница|Strana|Sayfa)"
 
+# Maximum pages a single highlight is allowed to span during end-search
+_MAX_SPAN_PAGES = 8
+
+
 # ── HTML parsing ─────────────────────────────────────────────────────────────
 
 def extract_highlights(html_path: Path) -> list[dict]:
@@ -42,7 +48,9 @@ def extract_highlights(html_path: Path) -> list[dict]:
     Returns a list of dicts:
       { page: int, color: str, text: str, note: str|None, truncated: bool }
     'page' is the printed page number from the Speechify sidebar.
-    List is in document order (page ascending, then HTML order).
+
+    The aria-label attribute often contains the full highlight text even when
+    the visible span is truncated for display. We prefer it when it is longer.
     """
     content = html_path.read_text(encoding="utf-8")
     sections = re.split(rf"(?={_PAGE_WORDS} \d+</span></button>)", content)
@@ -62,12 +70,21 @@ def extract_highlights(html_path: Path) -> list[dict]:
             re.DOTALL,
         )
 
-        for _aria, note_raw, color, span_html in blocks:
+        for aria_raw, note_raw, color, span_html in blocks:
             span_text = re.sub(r"<[^>]+>", "", span_html).strip()
             span_text = re.sub(r"\s+", " ", span_text)
 
-            truncated = span_text.endswith("...")
-            search_text = span_text.rstrip(".").strip() if truncated else span_text
+            aria_text = re.sub(r"\s+", " ", aria_raw).strip()
+
+            # Prefer aria-label when it is longer: it sometimes contains the
+            # full text while the visible span is truncated at ~80 chars.
+            if aria_text and len(aria_text) > len(span_text):
+                primary = aria_text
+            else:
+                primary = span_text
+
+            truncated = primary.endswith("...")
+            search_text = primary.rstrip(".").strip() if truncated else primary
             note = re.sub(r"\s+", " ", note_raw).strip() if note_raw else None
 
             highlights.append({
@@ -81,114 +98,185 @@ def extract_highlights(html_path: Path) -> list[dict]:
     return highlights
 
 
-# ── Text search ──────────────────────────────────────────────────────────────
+# ── Line rect helpers ─────────────────────────────────────────────────────────
 
-def find_start_rects(page: fitz.Page, search_text: str) -> list[fitz.Rect]:
+def _collect_lines(page: fitz.Page, y_start: float, y_end: float) -> list[fitz.Rect]:
     """
-    Finds the start position of text on the page.
-    Uses progressively shorter prefixes to work around hyphenation.
-    Returns rects of the first found line.
+    Return one merged Rect per text line on `page` whose words fall within
+    [y_start, y_end]. Words within 3 pt of each other share a line bucket.
     """
-    words_in_text = search_text.split()
-
-    # Short texts (1-2 words): search directly, with and without punctuation
-    if len(words_in_text) <= 2:
-        for query in [search_text, search_text.rstrip(".,;:")]:
-            rects = page.search_for(query)
-            if rects:
-                return [rects[0]]
-        return []
-
-    # Try progressively shorter prefixes to work around hyphenation
-    for n_words in range(min(8, len(words_in_text)), 2, -1):
-        fragment = " ".join(words_in_text[:n_words])
-        rects = page.search_for(fragment)
-        if rects:
-            return [rects[0]]  # Only first found line = start point
-
-    # Fallback: start from second word
-    for start in range(1, min(4, len(words_in_text))):
-        for n in range(min(7, len(words_in_text) - start), 2, -1):
-            fragment = " ".join(words_in_text[start:start + n])
-            rects = page.search_for(fragment)
-            if rects:
-                return [rects[0]]
-
-    return []
-
-
-def get_rects_in_range(
-    page: fitz.Page, y_start: float, y_end: float | None
-) -> list[fitz.Rect]:
-    """
-    Returns word rects of all lines between y_start and y_end.
-    y_end=None means until end of page.
-    """
-    page_bottom = page.rect.height - 30  # leave bottom margin
-    if y_end is None:
-        y_end = page_bottom
-
-    words = page.get_text("words")  # (x0, y0, x1, y1, word, block_no, line_no, word_no)
-
-    # Group words into lines: words whose y0 values are within 3pt of each other
-    # belong to the same line (handles slight baseline variation across fonts).
-    lines: list[tuple[float, float, fitz.Rect]] = []  # (y0_min, y1_max, rect)
-    for w in words:
+    lines: list[tuple[float, fitz.Rect]] = []  # (representative y0, merged rect)
+    for w in page.get_text("words"):
         x0, y0, x1, y1 = w[0], w[1], w[2], w[3]
         if y0 < y_start - 2 or y1 > y_end + 2:
             continue
+        r = fitz.Rect(x0, y0, x1, y1)
         merged = False
-        for i, (ly0, ly1, lr) in enumerate(lines):
+        for i, (ly0, lr) in enumerate(lines):
             if abs(y0 - ly0) < 3:
-                lines[i] = (min(ly0, y0), max(ly1, y1), lr | fitz.Rect(x0, y0, x1, y1))
+                lines[i] = (ly0, lr | r)
                 merged = True
                 break
         if not merged:
-            lines.append((y0, y1, fitz.Rect(x0, y0, x1, y1)))
+            lines.append((y0, r))
+    return [r for _, r in sorted(lines, key=lambda t: t[0])]
 
-    return [r for _, _, r in sorted(lines, key=lambda t: t[0])]
+
+def _page_bottom(page: fitz.Page) -> float:
+    return page.rect.height - 30
 
 
-def get_rects_between_texts(
-    page: fitz.Page, search_text: str, start_rects: list[fitz.Rect]
-) -> list[fitz.Rect]:
+# ── Start-position search ────────────────────────────────────────────────────
+
+def find_start(page: fitz.Page, text: str) -> fitz.Rect | None:
     """
-    For complete (non-truncated) texts: span from start to end of known text.
+    Locate the first occurrence of the beginning of `text` on `page`.
+    Tries progressively shorter word-prefixes to handle hyphenation.
+    Returns the rect of the first matching fragment, or None.
     """
-    y_start = start_rects[0].y0
+    words = text.split()
 
-    # Find the end position via suffix search.
-    # Only accept a match that is at or below y_start and within the same
-    # text block (not more than half a page away from the start).
-    words_in_text = search_text.split()
-    max_span = page.rect.height * 0.5  # sanity cap: highlights rarely span >½ page
-    end_rects = []
-    for n_words in range(min(8, len(words_in_text)), 2, -1):
-        fragment = " ".join(words_in_text[-n_words:])
-        found = page.search_for(fragment)
-        # Pick the first occurrence that is at/below start and within max_span
-        candidates = [r for r in found if r.y1 >= y_start and r.y0 - y_start <= max_span]
-        if candidates:
-            end_rects = [candidates[0]]
-            break
+    # Very short text: direct search
+    if len(words) <= 2:
+        for query in (text, text.rstrip(".,;:")):
+            hits = page.search_for(query)
+            if hits:
+                return hits[0]
+        return None
 
-    if not end_rects:
-        return start_rects
+    # Prefix search: longest match wins, stops at 3 words
+    for n in range(min(8, len(words)), 2, -1):
+        hits = page.search_for(" ".join(words[:n]))
+        if hits:
+            return hits[0]
 
-    y_end = end_rects[-1].y1
-    return get_rects_in_range(page, y_start, y_end)
+    # Fallback: skip leading word(s) to dodge orphaned hyphens
+    for skip in range(1, min(4, len(words))):
+        for n in range(min(7, len(words) - skip), 2, -1):
+            hits = page.search_for(" ".join(words[skip:skip + n]))
+            if hits:
+                return hits[0]
+
+    return None
 
 
-# ── Add annotation ───────────────────────────────────────────────────────────
+# ── End-position search (single page) ───────────────────────────────────────
 
-def add_highlight(page: fitz.Page, rects: list[fitz.Rect], color: tuple, note: str | None):
-    if not rects:
-        return
-    annot = page.add_highlight_annot(rects)
-    annot.set_colors(stroke=color)
-    if note:
-        annot.set_info(content=note)
-    annot.update()
+def find_end_on_page(
+    page: fitz.Page, text: str, y_min: float
+) -> float | None:
+    """
+    Search for the end of `text` on `page`, only accepting matches at or
+    below `y_min`. Returns y_end (bottom of last matching rect), or None.
+    """
+    words = text.split()
+    page_h = page.rect.height
+
+    for n in range(min(8, len(words)), 1, -1):
+        suffix = " ".join(words[-n:])
+        for r in page.search_for(suffix):
+            if r.y0 >= y_min - 2:
+                return r.y1
+    return None
+
+
+# ── Multi-page annotation ────────────────────────────────────────────────────
+
+def annotate_span(
+    doc: fitz.Document,
+    start_page: int, y_start: float,
+    end_page: int,   y_end: float,
+    color: tuple,
+    note: str | None,
+) -> bool:
+    """
+    Add highlight annotations from (start_page, y_start) to (end_page, y_end),
+    spanning as many pages as needed. Returns True if any annotation was added.
+    """
+    added = False
+    for p in range(start_page, end_page + 1):
+        page = doc[p]
+        top    = y_start if p == start_page else 0.0
+        bottom = y_end   if p == end_page   else _page_bottom(page)
+        rects  = _collect_lines(page, top, bottom)
+        if rects:
+            annot = page.add_highlight_annot(rects)
+            annot.set_colors(stroke=color)
+            if note and p == start_page:
+                annot.set_info(content=note)
+            annot.update()
+            added = True
+    return added
+
+
+# ── Complete-highlight placement (with multi-page support) ───────────────────
+
+def place_complete(
+    doc: fitz.Document,
+    start_page: int, start_rect: fitz.Rect,
+    text: str,
+    color: tuple, note: str | None,
+    verbose: bool,
+) -> bool:
+    """
+    Place a complete (non-truncated) highlight whose full text is known.
+    Searches for the end across up to _MAX_SPAN_PAGES pages forward.
+    """
+    y_start = start_rect.y0
+
+    # Try to find the end on the start page first, then on later pages
+    for end_page in range(start_page, min(start_page + _MAX_SPAN_PAGES, doc.page_count)):
+        y_min = y_start if end_page == start_page else 0.0
+        y_end = find_end_on_page(doc[end_page], text, y_min)
+        if y_end is not None:
+            ok = annotate_span(doc, start_page, y_start, end_page, y_end, color, note)
+            if verbose and ok:
+                span = f"p.{start_page+1}" if end_page == start_page else f"p.{start_page+1}–{end_page+1}"
+                print(f"  ✓ {span} [{color}]: {text[:55]}")
+            return ok
+
+    # End not found: fall back to start line only
+    rects = _collect_lines(doc[start_page], y_start, start_rect.y1 + 2)
+    if rects:
+        annot = doc[start_page].add_highlight_annot(rects)
+        annot.set_colors(stroke=color)
+        if note:
+            annot.set_info(content=note)
+        annot.update()
+        if verbose:
+            print(f"  ~ p.{start_page+1} [{color}] (end not found, start line only): {text[:55]}")
+        return True
+    return False
+
+
+# ── Truncated-highlight placement ────────────────────────────────────────────
+
+def place_truncated(
+    doc: fitz.Document,
+    start_page: int, y_start: float,
+    line_height: float,
+    next_y_same_page: float | None,
+    color: tuple, note: str | None,
+    verbose: bool,
+    label: str,
+) -> bool:
+    """
+    Place a truncated highlight where only the first ~80 chars are known.
+    Caps at the next highlight's start or at 8 lines, whichever is smaller.
+    """
+    y_cap = y_start + line_height * 8
+    y_end = min(next_y_same_page, y_cap) if next_y_same_page is not None else y_cap
+    rects = _collect_lines(doc[start_page], y_start, y_end)
+    if rects:
+        annot = doc[start_page].add_highlight_annot(rects)
+        annot.set_colors(stroke=color)
+        if note:
+            annot.set_info(content=note)
+        annot.update()
+        if verbose:
+            print(f"  ✓ p.{start_page+1} [{color}] (…): {label[:55]}")
+        return True
+    return False
 
 
 # ── Guess PDF path from HTML filename ────────────────────────────────────────
@@ -203,7 +291,7 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         html_path.parent,
         html_path.parent.parent,
         Path.home() / "Documents",
-        Path.home() / "Dokumente",  # German Windows
+        Path.home() / "Dokumente",
         Path.home() / "Desktop",
         Path.home() / "Downloads",
     ]
@@ -261,72 +349,64 @@ def main():
     doc = fitz.open(pdf_path)
     print(f"PDF:   {pdf_path.name}  ({doc.page_count} pages)")
 
-    # ── Pass 1: locate start position of each highlight in the PDF ──────────
-    # Result: list of (page_idx | None, y_start | None, highlight-dict)
-    located: list[tuple[int | None, float | None, dict]] = []
+    # ── Pass 1: locate start position of each highlight ──────────────────────
+    # Search page hint ±2 pages; record (page_idx, start_rect) or (None, None).
+    located: list[tuple[int | None, fitz.Rect | None, dict]] = []
 
     for h in highlights:
         target = h["page"] - 1
-        search_order = [target + d for d in [0, -1, 1, -2, 2] if 0 <= target + d < doc.page_count]
+        search_order = [target + d for d in [0, -1, 1, -2, 2]
+                        if 0 <= target + d < doc.page_count]
 
-        found_page, found_y = None, None
+        found_page, found_rect = None, None
         for page_idx in search_order:
-            rects = find_start_rects(doc[page_idx], h["text"])
-            if rects:
+            r = find_start(doc[page_idx], h["text"])
+            if r is not None:
                 found_page = page_idx
-                found_y = rects[0].y0
+                found_rect = r
                 break
 
-        located.append((found_page, found_y, h))
+        located.append((found_page, found_rect, h))
 
-    # ── Pass 2: annotate highlights with full rect spans ────────────────────
+    # ── Pass 2: annotate ─────────────────────────────────────────────────────
     done, not_found = 0, []
 
-    for i, (page_idx, y_start, h) in enumerate(located):
+    for i, (page_idx, start_rect, h) in enumerate(located):
         if page_idx is None:
             not_found.append(h)
             if args.verbose:
                 print(f"  ✗ p.{h['page']} [{h['color']}] NOT FOUND: {h['text'][:60]}")
             continue
 
-        page  = doc[page_idx]
         color = COLOR_MAP.get(h["color"], DEFAULT_COLOR)
 
         if not h["truncated"]:
-            # Full text: span from start to end of known text
-            start_rects = find_start_rects(page, h["text"])
-            final_rects = get_rects_between_texts(page, h["text"], start_rects)
+            ok = place_complete(
+                doc, page_idx, start_rect,
+                h["text"], color, h["note"], args.verbose,
+            )
         else:
-            # Truncated text: Speechify cuts off at ~80 chars, roughly 3-6 lines.
-            # Cap at the next highlight on the same page OR at most 8 lines
-            # from the start — whichever comes first — to avoid over-highlighting.
-            start_rects_trunc = find_start_rects(page, h["text"])
-            line_height = (start_rects_trunc[0].y1 - start_rects_trunc[0].y0) if start_rects_trunc else 12
-            y_cap = y_start + line_height * 8  # hard cap: 8 lines max
-
-            y_end = y_cap
+            # Truncated: find the next highlight on the same page for y_end hint
+            line_h = start_rect.y1 - start_rect.y0 or 12
+            next_y: float | None = None
             for j in range(i + 1, len(located)):
-                next_page, next_y, _ = located[j]
-                if next_page == page_idx and next_y is not None:
-                    y_end = min(next_y, y_cap)
+                np, nr, _ = located[j]
+                if np == page_idx and nr is not None:
+                    next_y = nr.y0
                     break
 
-            final_rects = get_rects_in_range(page, y_start, y_end)
+            ok = place_truncated(
+                doc, page_idx, start_rect.y0,
+                line_h, next_y, color, h["note"], args.verbose,
+                h["text"],
+            )
 
-        if not final_rects:
+        if ok:
+            done += 1
+        else:
             not_found.append(h)
             if args.verbose:
-                print(f"  ✗ p.{h['page']} [{h['color']}] NO RECTS: {h['text'][:60]}")
-            continue
-
-        add_highlight(page, final_rects, color, h["note"])
-        done += 1
-
-        if args.verbose:
-            note_str = f" [note: {h['note']}]" if h["note"] else ""
-            trunc    = " (…)" if h["truncated"] else ""
-            n_lines  = len(final_rects)
-            print(f"  ✓ p.{h['page']} [{h['color']}]{trunc}{note_str} {n_lines} lines: {h['text'][:55]}")
+                print(f"  ✗ p.{page_idx+1} [{h['color']}] NO RECTS: {h['text'][:60]}")
 
     print(f"\nResult: {done}/{len(highlights)} highlights transferred.")
     if not_found:
