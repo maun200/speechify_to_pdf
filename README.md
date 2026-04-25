@@ -104,6 +104,10 @@ Pull requests and issue reports are welcome!
 Please open an issue before starting work on larger changes.  
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+## Related projects
+
+- **[kindle-highlights-to-pdf](https://github.com/maun200/kindle-highlights-to-pdf)** — Same idea for Kindle users: transfer `My Clippings.txt` highlights into your PDF.
+
 ## Support the project
 
 This tool is free and open-source. If it saves you time, a small donation helps keep it maintained and improved:
