@@ -129,16 +129,24 @@ def get_rects_in_range(
         y_end = page_bottom
 
     words = page.get_text("words")  # (x0, y0, x1, y1, word, block_no, line_no, word_no)
-    line_map: dict[float, fitz.Rect] = {}
 
+    # Group words into lines: words whose y0 values are within 3pt of each other
+    # belong to the same line (handles slight baseline variation across fonts).
+    lines: list[tuple[float, float, fitz.Rect]] = []  # (y0_min, y1_max, rect)
     for w in words:
         x0, y0, x1, y1 = w[0], w[1], w[2], w[3]
-        if y0 >= y_start - 2 and y1 <= y_end + 2:
-            key = round(y0, 1)
-            r = fitz.Rect(x0, y0, x1, y1)
-            line_map[key] = line_map[key] | r if key in line_map else r
+        if y0 < y_start - 2 or y1 > y_end + 2:
+            continue
+        merged = False
+        for i, (ly0, ly1, lr) in enumerate(lines):
+            if abs(y0 - ly0) < 3:
+                lines[i] = (min(ly0, y0), max(ly1, y1), lr | fitz.Rect(x0, y0, x1, y1))
+                merged = True
+                break
+        if not merged:
+            lines.append((y0, y1, fitz.Rect(x0, y0, x1, y1)))
 
-    return list(line_map.values())
+    return [r for _, _, r in sorted(lines, key=lambda t: t[0])]
 
 
 def get_rects_between_texts(
@@ -149,14 +157,19 @@ def get_rects_between_texts(
     """
     y_start = start_rects[0].y0
 
-    # Find the end position via suffix search
+    # Find the end position via suffix search.
+    # Only accept a match that is at or below y_start and within the same
+    # text block (not more than half a page away from the start).
     words_in_text = search_text.split()
+    max_span = page.rect.height * 0.5  # sanity cap: highlights rarely span >½ page
     end_rects = []
     for n_words in range(min(8, len(words_in_text)), 2, -1):
         fragment = " ".join(words_in_text[-n_words:])
         found = page.search_for(fragment)
-        if found and found[-1].y1 >= y_start:
-            end_rects = found
+        # Pick the first occurrence that is at/below start and within max_span
+        candidates = [r for r in found if r.y1 >= y_start and r.y0 - y_start <= max_span]
+        if candidates:
+            end_rects = [candidates[0]]
             break
 
     if not end_rects:
@@ -284,13 +297,18 @@ def main():
             start_rects = find_start_rects(page, h["text"])
             final_rects = get_rects_between_texts(page, h["text"], start_rects)
         else:
-            # Truncated text: from start line to start of next highlight on
-            # the same page (or end of page)
-            y_end = None
+            # Truncated text: Speechify cuts off at ~80 chars, roughly 3-6 lines.
+            # Cap at the next highlight on the same page OR at most 8 lines
+            # from the start — whichever comes first — to avoid over-highlighting.
+            start_rects_trunc = find_start_rects(page, h["text"])
+            line_height = (start_rects_trunc[0].y1 - start_rects_trunc[0].y0) if start_rects_trunc else 12
+            y_cap = y_start + line_height * 8  # hard cap: 8 lines max
+
+            y_end = y_cap
             for j in range(i + 1, len(located)):
                 next_page, next_y, _ = located[j]
                 if next_page == page_idx and next_y is not None:
-                    y_end = next_y
+                    y_end = min(next_y, y_cap)
                     break
 
             final_rects = get_rects_in_range(page, y_start, y_end)
