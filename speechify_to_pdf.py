@@ -180,6 +180,35 @@ def find_end_on_page(
     return None
 
 
+# ── Rect validation & safe annotation ────────────────────────────────────────
+
+def _valid_rects(page: fitz.Page, rects: list[fitz.Rect]) -> list[fitz.Rect]:
+    """Drop zero-area or out-of-bounds rects that make add_highlight_annot crash."""
+    clip = page.rect
+    result = []
+    for r in rects:
+        clipped = r & clip
+        if r.width > 0.5 and r.height > 0.5 and clipped.is_valid and not clipped.is_empty:
+            result.append(r)
+    return result
+
+
+def _safe_highlight(page: fitz.Page, rects: list[fitz.Rect], color: tuple, note: str | None) -> bool:
+    """Add a highlight annotation safely; returns True on success."""
+    valid = _valid_rects(page, rects)
+    if not valid:
+        return False
+    try:
+        annot = page.add_highlight_annot(valid)
+        annot.set_colors(stroke=color)
+        if note:
+            annot.set_info(content=note)
+        annot.update()
+        return True
+    except Exception:
+        return False
+
+
 # ── Multi-page annotation ────────────────────────────────────────────────────
 
 def annotate_span(
@@ -199,12 +228,7 @@ def annotate_span(
         top    = y_start if p == start_page else 0.0
         bottom = y_end   if p == end_page   else _page_bottom(page)
         rects  = _collect_lines(page, top, bottom)
-        if rects:
-            annot = page.add_highlight_annot(rects)
-            annot.set_colors(stroke=color)
-            if note and p == start_page:
-                annot.set_info(content=note)
-            annot.update()
+        if _safe_highlight(page, rects, color, note if p == start_page else None):
             added = True
     return added
 
@@ -237,12 +261,7 @@ def place_complete(
 
     # End not found: fall back to start line only
     rects = _collect_lines(doc[start_page], y_start, start_rect.y1 + 2)
-    if rects:
-        annot = doc[start_page].add_highlight_annot(rects)
-        annot.set_colors(stroke=color)
-        if note:
-            annot.set_info(content=note)
-        annot.update()
+    if _safe_highlight(doc[start_page], rects, color, note):
         if verbose:
             print(f"  ~ p.{start_page+1} [{color}] (end not found, start line only): {text[:55]}")
         return True
@@ -267,12 +286,7 @@ def place_truncated(
     y_cap = y_start + line_height * 8
     y_end = min(next_y_same_page, y_cap) if next_y_same_page is not None else y_cap
     rects = _collect_lines(doc[start_page], y_start, y_end)
-    if rects:
-        annot = doc[start_page].add_highlight_annot(rects)
-        annot.set_colors(stroke=color)
-        if note:
-            annot.set_info(content=note)
-        annot.update()
+    if _safe_highlight(doc[start_page], rects, color, note):
         if verbose:
             print(f"  ✓ p.{start_page+1} [{color}] (…): {label[:55]}")
         return True
