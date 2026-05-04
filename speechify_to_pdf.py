@@ -2,6 +2,8 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
+Version: 1.0.0
+
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
 Highlights are matched exactly: single characters, single lines, and
@@ -328,6 +330,7 @@ def main():
     parser.add_argument("pdf",  nargs="?", help="Local PDF file (optional, auto-detected if omitted)")
     parser.add_argument("-o", "--output", help="Output file (default: <pdf-name>_highlights.pdf)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print all highlights with details")
+    parser.add_argument("--version", action="version", version="%(prog)s 1.0.0")
     args = parser.parse_args()
 
     html_path = Path(args.html).expanduser().resolve()
