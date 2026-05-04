@@ -2,6 +2,7 @@
 
 **Transfer your Speechify highlights directly into your PDF** — as real, standard-compliant PDF annotations, compatible with Citavi, Zotero, Adobe Acrobat, Okular, and every other PDF reader.
 
+[![CI](https://github.com/maun200/speechify_to_pdf/actions/workflows/ci.yml/badge.svg)](https://github.com/maun200/speechify_to_pdf/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate/?business=m.gruda%40web.de&currency_code=EUR)
