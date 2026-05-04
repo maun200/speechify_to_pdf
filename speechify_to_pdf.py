@@ -55,11 +55,11 @@ def extract_highlights(html_path: Path) -> list[dict]:
     the visible span is truncated for display. We prefer it when it is longer.
     """
     content = html_path.read_text(encoding="utf-8")
-    sections = re.split(rf"(?={_PAGE_WORDS} \d+</span></button>)", content)
+    sections = re.split(rf"(?={_PAGE_WORDS}\s+\d+</span></button>)", content)
 
     highlights = []
     for section in sections:
-        page_m = re.match(rf"{_PAGE_WORDS} (\d+)", section)
+        page_m = re.match(rf"{_PAGE_WORDS}\s+(\d+)", section)
         if not page_m:
             continue
         page_num = int(page_m.group(1))
