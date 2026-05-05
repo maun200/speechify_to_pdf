@@ -40,6 +40,10 @@ COLOR_MAP = {
 DEFAULT_COLOR = (1.0, 0.93, 0.0)
 
 # Page label words across Speechify UI languages (matched case-insensitively)
+# Covers: English, French (Page), German (Seite), Spanish (Página),
+# Italian (Pagina/Pagine), Dutch (Pagina), Korean (페이지), Japanese (ページ),
+# Russian (Страница), Czech (Strana), Polish (Strona), Turkish (Sayfa),
+# Traditional Chinese (頁), Simplified Chinese (页)
 _PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa|頁|页)"
 
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
@@ -60,8 +64,6 @@ def _parse_page_num(s: str) -> int:
     if s.isdigit():
         return int(s)
     s = s.lower()
-    if not all(c in _ROMAN_MAP for c in s):
-        return int(s)
     total, prev = 0, 0
     for ch in reversed(s):
         val = _ROMAN_MAP[ch]
