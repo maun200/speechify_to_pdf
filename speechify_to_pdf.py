@@ -392,6 +392,12 @@ def main():
     print(f"       {len(highlights)} highlights found")
 
     doc = fitz.open(pdf_path)
+    if doc.is_encrypted and not doc.authenticate(""):
+        doc.close()
+        sys.exit(
+            f"PDF is password-protected: {pdf_path.name}\n"
+            "Please decrypt the file first (e.g. with qpdf --decrypt) and try again."
+        )
     print(f"PDF:   {pdf_path.name}  ({doc.page_count} pages)")
 
     # ── Pass 1: locate start position of each highlight ──────────────────────
