@@ -191,8 +191,8 @@ def _valid_rects(page: fitz.Page, rects: list[fitz.Rect]) -> list[fitz.Rect]:
     result = []
     for r in rects:
         clipped = r & clip
-        if r.width > 0.5 and r.height > 0.5 and clipped.is_valid and not clipped.is_empty:
-            result.append(r)
+        if clipped.is_valid and not clipped.is_empty and clipped.width > 0.5 and clipped.height > 0.5:
+            result.append(clipped)
     return result
 
 
