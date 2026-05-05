@@ -272,7 +272,7 @@ def place_complete(
     doc: fitz.Document,
     start_page: int, start_rect: fitz.Rect,
     text: str,
-    color: tuple, note: str | None,
+    color: tuple, color_name: str, note: str | None,
     verbose: bool,
 ) -> bool:
     """
@@ -289,14 +289,14 @@ def place_complete(
             ok = annotate_span(doc, start_page, y_start, end_page, y_end, color, note)
             if verbose and ok:
                 span = f"p.{start_page+1}" if end_page == start_page else f"p.{start_page+1}–{end_page+1}"
-                print(f"  ✓ {span} [{color}]: {text[:55]}")
+                print(f"  ✓ {span} [{color_name}]: {text[:55]}")
             return ok
 
     # End not found: fall back to start line only
     rects = _collect_lines(doc[start_page], y_start, start_rect.y1 + 2)
     if _safe_highlight(doc[start_page], rects, color, note):
         if verbose:
-            print(f"  ~ p.{start_page+1} [{color}] (end not found, start line only): {text[:55]}")
+            print(f"  ~ p.{start_page+1} [{color_name}] (end not found, start line only): {text[:55]}")
         return True
     return False
 
@@ -308,7 +308,7 @@ def place_truncated(
     start_page: int, y_start: float,
     line_height: float,
     next_y_same_page: float | None,
-    color: tuple, note: str | None,
+    color: tuple, color_name: str, note: str | None,
     verbose: bool,
     label: str,
 ) -> bool:
@@ -321,7 +321,7 @@ def place_truncated(
     rects = _collect_lines(doc[start_page], y_start, y_end)
     if _safe_highlight(doc[start_page], rects, color, note):
         if verbose:
-            print(f"  ✓ p.{start_page+1} [{color}] (…): {label[:55]}")
+            print(f"  ✓ p.{start_page+1} [{color_name}] (…): {label[:55]}")
         return True
     return False
 
@@ -445,7 +445,7 @@ def main():
         if not h["truncated"]:
             ok = place_complete(
                 doc, page_idx, start_rect,
-                h["text"], color, h["note"], args.verbose,
+                h["text"], color, h["color"], h["note"], args.verbose,
             )
         else:
             # Truncated: find the next highlight on the same page for y_end hint
@@ -459,7 +459,7 @@ def main():
 
             ok = place_truncated(
                 doc, page_idx, start_rect.y0,
-                line_h, next_y, color, h["note"], args.verbose,
+                line_h, next_y, color, h["color"], h["note"], args.verbose,
                 h["text"],
             )
 
