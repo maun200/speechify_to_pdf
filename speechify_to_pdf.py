@@ -477,7 +477,9 @@ def main():
         doc.close()
         print(f"\nDry run — no file written. Would save to: {output_path}")
     else:
-        doc.save(output_path, garbage=4, deflate=True)
+        # garbage=0: skip xref rebuild — DRM PDFs have intentionally broken
+        # xref tables that garbage=4 would corrupt on re-save.
+        doc.save(output_path, garbage=0, deflate=True)
         doc.close()
         print(f"\nSaved: {output_path}")
 
