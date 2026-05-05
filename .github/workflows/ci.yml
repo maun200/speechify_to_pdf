@@ -17,3 +17,7 @@ jobs:
           python-version: "3.x"
       - name: Syntax check
         run: python3 -m py_compile speechify_to_pdf.py
+      - name: Install dependencies
+        run: pip install pymupdf pytest
+      - name: Run tests
+        run: python3 -m pytest tests/ -v
