@@ -46,7 +46,9 @@ _PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]т
 _WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx][Aa]0;)+"
 
 # Matches decimal or roman-numeral page numbers (e.g. "42", "xiv", "XIV")
-_PAGE_NUM = r"(\d+|[ivxlcdmIVXLCDM]+)"
+_PAGE_NUM_PAT = r"\d+|[ivxlcdmIVXLCDM]+"        # core alternatives
+_PAGE_NUM_NC  = r"(?:" + _PAGE_NUM_PAT + ")"     # non-capturing group (for splitting)
+_PAGE_NUM     = r"("   + _PAGE_NUM_PAT + ")"     # capturing group (for match.group(1))
 
 # Maximum pages a single highlight is allowed to span during end-search
 _MAX_SPAN_PAGES = 8
@@ -81,7 +83,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
     """
     content = html_path.read_text(encoding="utf-8")
     sections = re.split(
-        rf"(?={_PAGE_WORDS}{_WS}(?:{_PAGE_NUM[1:-1]})\s*</span>\s*</button>)",
+        rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}\s*</span>\s*</button>)",
         content, flags=re.IGNORECASE,
     )
 
