@@ -37,7 +37,7 @@ COLOR_MAP = {
 DEFAULT_COLOR = (1.0, 0.93, 0.0)
 
 # Page label words across Speechify UI languages
-_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa)"
+_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa|頁|页)"
 
 # Maximum pages a single highlight is allowed to span during end-search
 _MAX_SPAN_PAGES = 8
@@ -314,8 +314,9 @@ def guess_pdf_path(html_path: Path) -> Path | None:
     for d in search_dirs:
         if not d.exists():
             continue
-        for candidate in d.rglob("*.pdf"):
-            if candidate.name.lower() == pdf_name_stem.lower():
+        for candidate in d.rglob("*"):
+            if candidate.is_file() and candidate.suffix.lower() == ".pdf" \
+                    and candidate.name.lower() == pdf_name_stem.lower():
                 return candidate
     return None
 
