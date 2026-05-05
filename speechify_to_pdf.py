@@ -485,8 +485,11 @@ def main():
 
     if args.dry_run:
         doc.close()
-        print(f"\nDry run — no file written. Would save to: {output_path}")
+        exists_note = " (would overwrite existing file)" if output_path.exists() else ""
+        print(f"\nDry run — no file written. Would save to: {output_path}{exists_note}")
     else:
+        if output_path.exists():
+            print(f"Warning: overwriting existing output file: {output_path.name}")
         # garbage=0: skip xref rebuild — DRM PDFs have intentionally broken
         # xref tables that garbage=4 would corrupt on re-save.
         doc.save(output_path, garbage=0, deflate=True)
