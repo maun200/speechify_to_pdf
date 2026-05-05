@@ -326,7 +326,7 @@ def place_truncated(
 
 def guess_pdf_path(html_path: Path) -> Path | None:
     name = html_path.stem
-    pdf_name_stem = re.sub(r"\s*_\s*Speechify$", "", name)
+    pdf_name_stem = re.sub(r"\s*_\s*Speechify$", "", name).strip()
     if not pdf_name_stem.lower().endswith(".pdf"):
         pdf_name_stem += ".pdf"
 
