@@ -397,8 +397,9 @@ def main():
     # ── Pass 1: locate start position of each highlight ──────────────────────
     # Search page hint ±2 pages; record (page_idx, start_rect) or (None, None).
     located: list[tuple[int | None, fitz.Rect | None, dict]] = []
+    total = len(highlights)
 
-    for h in highlights:
+    for idx, h in enumerate(highlights, 1):
         target = h["page"] - 1
         search_order = [target + d for d in [0, -1, 1, -2, 2]
                         if 0 <= target + d < doc.page_count]
@@ -412,6 +413,9 @@ def main():
                 break
 
         located.append((found_page, found_rect, h))
+        print(f"\r  Locating: {idx}/{total}", end="", flush=True)
+
+    print()  # newline after progress
 
     # ── Pass 2: annotate ─────────────────────────────────────────────────────
     done, not_found = 0, []
@@ -452,7 +456,9 @@ def main():
             not_found.append(h)
             if args.verbose:
                 print(f"  ✗ p.{page_idx+1} [{h['color']}] NO RECTS: {h['text'][:60]}")
+        print(f"\r  Annotating: {i+1}/{total}", end="", flush=True)
 
+    print()  # newline after progress
     print(f"\nResult: {done}/{len(highlights)} highlights transferred.")
     if not_found:
         print(f"Not found ({len(not_found)}):")
