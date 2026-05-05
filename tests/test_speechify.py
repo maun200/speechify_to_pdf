@@ -162,3 +162,64 @@ def test_page_words_matches_german():
 
 def test_page_words_matches_japanese():
     assert re.match(stp._PAGE_WORDS, "ページ")
+
+
+# ── _WS / _PAGE_NUM / _parse_page_num ────────────────────────────────────────
+
+def test_ws_matches_nbsp_entities():
+    assert re.match(stp._WS, "&nbsp;")
+    assert re.match(stp._WS, "&#160;")
+    assert re.match(stp._WS, "&#xA0;")
+    assert re.match(stp._WS, "&#Xa0;")
+
+
+def test_parse_page_num_decimal():
+    assert stp._parse_page_num("1") == 1
+    assert stp._parse_page_num("42") == 42
+
+
+def test_parse_page_num_roman_lower():
+    assert stp._parse_page_num("i") == 1
+    assert stp._parse_page_num("iv") == 4
+    assert stp._parse_page_num("xiv") == 14
+    assert stp._parse_page_num("xlii") == 42
+
+
+def test_parse_page_num_roman_upper():
+    assert stp._parse_page_num("XIV") == 14
+    assert stp._parse_page_num("XLII") == 42
+
+
+def _make_html_roman(entries: list[dict]) -> str:
+    blocks = []
+    current_page = None
+    for e in entries:
+        if e["page"] != current_page:
+            current_page = e["page"]
+            blocks.append(f'<span>Page {e["page_label"]}</span></button>')
+        note_part = f". Note: {e['note']}" if e.get("note") else ""
+        blocks.append(
+            f'aria-label="Highlight: {e["text"]}{note_part} . Has context menu"'
+            f' class="bg-bg-highlight-notes-{e["color"]} foo">'
+            f'<span>{e["text"]}</span>'
+        )
+    return "\n".join(blocks)
+
+
+def test_extract_roman_numeral_page(tmp_path):
+    html = _make_html_roman([{"page": "xiv", "page_label": "xiv", "color": "yellow", "text": "Intro text", "note": None}])
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 14
+
+
+def test_extract_nbsp_entity_in_page_label(tmp_path):
+    html = '<span>Page&#160;7</span></button>\n' \
+           'aria-label="Highlight: Some text . Has context menu" class="bg-bg-highlight-notes-yellow foo"><span>Some text</span>'
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 7

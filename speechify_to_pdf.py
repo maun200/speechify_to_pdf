@@ -39,14 +39,33 @@ COLOR_MAP = {
 }
 DEFAULT_COLOR = (1.0, 0.93, 0.0)
 
-# Page label words across Speechify UI languages
+# Page label words across Speechify UI languages (matched case-insensitively)
 _PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa|頁|页)"
 
-# Matches any whitespace or non-breaking space (&nbsp; or U+00A0) in raw HTML
-_WS = r"(?:[\s ]|&nbsp;)+"
+# Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
+_WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx][Aa]0;)+"
+
+# Matches decimal or roman-numeral page numbers (e.g. "42", "xiv", "XIV")
+_PAGE_NUM = r"(\d+|[ivxlcdmIVXLCDM]+)"
 
 # Maximum pages a single highlight is allowed to span during end-search
 _MAX_SPAN_PAGES = 8
+
+_ROMAN_MAP = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
+
+
+def _parse_page_num(s: str) -> int:
+    if s.isdigit():
+        return int(s)
+    s = s.lower()
+    if not all(c in _ROMAN_MAP for c in s):
+        return int(s)
+    total, prev = 0, 0
+    for ch in reversed(s):
+        val = _ROMAN_MAP[ch]
+        total += val if val >= prev else -val
+        prev = val
+    return total
 
 
 # ── HTML parsing ─────────────────────────────────────────────────────────────
@@ -61,14 +80,17 @@ def extract_highlights(html_path: Path) -> list[dict]:
     the visible span is truncated for display. We prefer it when it is longer.
     """
     content = html_path.read_text(encoding="utf-8")
-    sections = re.split(rf"(?={_PAGE_WORDS}{_WS}\d+\s*</span>\s*</button>)", content)
+    sections = re.split(
+        rf"(?={_PAGE_WORDS}{_WS}(?:{_PAGE_NUM[1:-1]})\s*</span>\s*</button>)",
+        content, flags=re.IGNORECASE,
+    )
 
     highlights = []
     for section in sections:
-        page_m = re.match(rf"{_PAGE_WORDS}{_WS}(\d+)", section)
+        page_m = re.match(rf"{_PAGE_WORDS}{_WS}{_PAGE_NUM}", section, re.IGNORECASE)
         if not page_m:
             continue
-        page_num = int(page_m.group(1))
+        page_num = _parse_page_num(page_m.group(1))
 
         blocks = re.findall(
             r'aria-label="Highlight: (.*?)(?:\. Note: (.*?))?\s*\.\s*Has context menu"'
