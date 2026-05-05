@@ -315,9 +315,8 @@ def guess_pdf_path(html_path: Path) -> Path | None:
     for d in search_dirs:
         if not d.exists():
             continue
-        for candidate in d.rglob("*"):
-            if candidate.is_file() and candidate.suffix.lower() == ".pdf" \
-                    and candidate.name.lower() == pdf_name_stem.lower():
+        for candidate in d.rglob("*.pdf"):
+            if candidate.is_file() and candidate.name.lower() == pdf_name_stem.lower():
                 return candidate
     return None
 
