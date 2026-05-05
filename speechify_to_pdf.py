@@ -20,6 +20,8 @@ import re
 import sys
 from pathlib import Path
 
+__version__ = "1.0.0"
+
 try:
     import fitz  # PyMuPDF
 except ImportError:
@@ -333,7 +335,7 @@ def main():
     parser.add_argument("pdf",  nargs="?", help="Local PDF file (optional, auto-detected if omitted)")
     parser.add_argument("-o", "--output", help="Output file (default: <pdf-name>_highlights.pdf)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print all highlights with details")
-    parser.add_argument("--version", action="version", version="%(prog)s 1.0.0")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
 
     html_path = Path(args.html).expanduser().resolve()
