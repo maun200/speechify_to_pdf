@@ -176,7 +176,6 @@ def find_end_on_page(
     below `y_min`. Returns y_end (bottom of last matching rect), or None.
     """
     words = text.split()
-    page_h = page.rect.height
 
     for n in range(min(8, len(words)), 1, -1):
         suffix = " ".join(words[-n:])
