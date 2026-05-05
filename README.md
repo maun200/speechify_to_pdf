@@ -63,6 +63,11 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -v
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"
 ```
 
+**Preview without writing any file (dry run):**
+```bash
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --dry-run
+```
+
 ## What gets transferred?
 
 | Speechify element | PDF annotation |
