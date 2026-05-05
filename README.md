@@ -68,6 +68,60 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --dry-run
 ```
 
+## Example Output
+
+Running the tool on a typical document:
+
+```
+$ python3 speechify_to_pdf.py "Algorithms.pdf _ Speechify.html" "Algorithms.pdf"
+HTML:  Algorithms.pdf _ Speechify.html
+       17 highlights found
+PDF:   Algorithms.pdf  (412 pages)
+  Locating: 17/17
+
+  Annotating: 17/17
+
+Result: 16/17 highlights transferred.
+Not found (1):
+  p.203: This is a very long highlight that starts with the opening words of...
+
+Saved: Algorithms_highlights.pdf
+```
+
+With `--verbose`, each highlight is shown as it is placed:
+
+```
+$ python3 speechify_to_pdf.py "Algorithms.pdf _ Speechify.html" "Algorithms.pdf" -v
+HTML:  Algorithms.pdf _ Speechify.html
+       17 highlights found
+PDF:   Algorithms.pdf  (412 pages)
+  Locating: 17/17
+  ✓ p.12–13 [yellow]: A sorting algorithm is a method for reorganizing a...
+  ✓ p.45 [pink] (…): The time complexity of this approach is bounded by...
+  ~ p.98 [blue] (end not found, start line only): An invariant must hold at every...
+  ✗ p.203 [yellow] NO RECTS: This is a very long highlight that starts with...
+  Annotating: 17/17
+
+Result: 16/17 highlights transferred.
+Saved: Algorithms_highlights.pdf
+```
+
+Dry run (preview without writing):
+
+```
+$ python3 speechify_to_pdf.py "Algorithms.pdf _ Speechify.html" "Algorithms.pdf" --dry-run
+HTML:  Algorithms.pdf _ Speechify.html
+       17 highlights found
+PDF:   Algorithms.pdf  (412 pages)
+  Locating: 17/17
+
+  Annotating: 17/17
+
+Result: 16/17 highlights transferred.
+
+Dry run — no file written. Would save to: Algorithms_highlights.pdf
+```
+
 ## What gets transferred?
 
 | Speechify element | PDF annotation |
