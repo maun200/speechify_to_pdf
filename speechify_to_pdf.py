@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.0.0
+Version: 1.1.0
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
