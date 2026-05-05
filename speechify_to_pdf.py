@@ -464,9 +464,11 @@ def main():
             not_found.append(h)
             if args.verbose:
                 print(f"  ✗ p.{page_idx+1} [{h['color']}] NO RECTS: {h['text'][:60]}")
-        print(f"\r  Annotating: {i+1}/{total}", end="", flush=True)
+        if not args.verbose:
+            print(f"\r  Annotating: {i+1}/{total}", end="", flush=True)
 
-    print()  # newline after progress
+    if not args.verbose:
+        print()  # newline after progress
     print(f"\nResult: {done}/{len(highlights)} highlights transferred.")
     if not_found:
         print(f"Not found ({len(not_found)}):")
