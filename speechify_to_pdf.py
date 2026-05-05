@@ -335,6 +335,7 @@ def main():
     parser.add_argument("pdf",  nargs="?", help="Local PDF file (optional, auto-detected if omitted)")
     parser.add_argument("-o", "--output", help="Output file (default: <pdf-name>_highlights.pdf)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print all highlights with details")
+    parser.add_argument("--dry-run", action="store_true", help="Show what would be done without writing output file")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
 
@@ -436,9 +437,13 @@ def main():
         for h in not_found:
             print(f"  p.{h['page']}: {h['text'][:80]}")
 
-    doc.save(output_path, garbage=4, deflate=True)
-    doc.close()
-    print(f"\nSaved: {output_path}")
+    if args.dry_run:
+        doc.close()
+        print(f"\nDry run — no file written. Would save to: {output_path}")
+    else:
+        doc.save(output_path, garbage=4, deflate=True)
+        doc.close()
+        print(f"\nSaved: {output_path}")
 
 
 if __name__ == "__main__":
