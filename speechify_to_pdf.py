@@ -15,6 +15,7 @@ Usage:
 """
 
 import argparse
+import html
 import re
 import sys
 from pathlib import Path
@@ -74,9 +75,9 @@ def extract_highlights(html_path: Path) -> list[dict]:
 
         for aria_raw, note_raw, color, span_html in blocks:
             span_text = re.sub(r"<[^>]+>", "", span_html).strip()
-            span_text = re.sub(r"\s+", " ", span_text)
+            span_text = html.unescape(re.sub(r"\s+", " ", span_text))
 
-            aria_text = re.sub(r"\s+", " ", aria_raw).strip()
+            aria_text = html.unescape(re.sub(r"\s+", " ", aria_raw).strip())
 
             # Prefer aria-label when it is longer: it sometimes contains the
             # full text while the visible span is truncated at ~80 chars.
