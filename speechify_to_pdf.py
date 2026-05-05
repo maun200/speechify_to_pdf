@@ -37,7 +37,7 @@ COLOR_MAP = {
 DEFAULT_COLOR = (1.0, 0.93, 0.0)
 
 # Page label words across Speechify UI languages
-_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|Страница|страница|Strana|Sayfa)"
+_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa)"
 
 # Maximum pages a single highlight is allowed to span during end-search
 _MAX_SPAN_PAGES = 8
@@ -55,7 +55,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
     the visible span is truncated for display. We prefer it when it is longer.
     """
     content = html_path.read_text(encoding="utf-8")
-    sections = re.split(rf"(?={_PAGE_WORDS}\s+\d+</span></button>)", content)
+    sections = re.split(rf"(?={_PAGE_WORDS}\s+\d+\s*</span>\s*</button>)", content)
 
     highlights = []
     for section in sections:
