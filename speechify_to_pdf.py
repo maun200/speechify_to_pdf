@@ -49,8 +49,9 @@ _PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]т
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
 _WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx][Aa]0;)+"
 
-# Matches decimal or roman-numeral page numbers (e.g. "42", "xiv", "XIV")
-_PAGE_NUM_PAT = r"\d+|[ivxlcdmIVXLCDM]+"        # core alternatives
+# Matches decimal, alphanumeric (e.g. "A-1", "B2"), or roman-numeral page numbers
+# Order matters: alphanumeric must come before roman to avoid "D" being parsed as 500
+_PAGE_NUM_PAT = r"\d+|[A-Za-z]-?\d+|[ivxlcdmIVXLCDM]+"
 _PAGE_NUM_NC  = r"(?:" + _PAGE_NUM_PAT + ")"     # non-capturing group (for splitting)
 _PAGE_NUM     = r"("   + _PAGE_NUM_PAT + ")"     # capturing group (for match.group(1))
 
@@ -63,10 +64,15 @@ _ROMAN_MAP = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
 def _parse_page_num(s: str) -> int:
     if s.isdigit():
         return int(s)
+    # Alphanumeric labels like "A-1", "B2" (appendix pages in some textbooks)
+    m = re.match(r'[A-Za-z]-?(\d+)$', s)
+    if m:
+        return int(m.group(1))
+    # Roman numerals
     s = s.lower()
     total, prev = 0, 0
     for ch in reversed(s):
-        val = _ROMAN_MAP[ch]
+        val = _ROMAN_MAP.get(ch, 0)
         total += val if val >= prev else -val
         prev = val
     return total
