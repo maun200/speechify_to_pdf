@@ -214,6 +214,17 @@ def find_end_on_page(
     """
     words = text.split()
 
+    # Very short text: direct search (mirrors find_start's short-text path).
+    # The range loop below never tries n=1, so single-word texts must be
+    # handled here to avoid always falling back to "start line only".
+    if len(words) <= 2:
+        stripped = text.rstrip(".,;:!?)]}'\"" + "’”")
+        for query in dict.fromkeys([text, stripped]):
+            for r in page.search_for(query):
+                if r.y0 >= y_min - 2:
+                    return r.y1
+        return None
+
     for n in range(min(8, len(words)), 1, -1):
         suffix = " ".join(words[-n:])
         stripped = suffix.rstrip(".,;:!?)]}'\"" + "’”")
