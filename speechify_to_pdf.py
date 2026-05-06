@@ -83,7 +83,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
     The aria-label attribute often contains the full highlight text even when
     the visible span is truncated for display. We prefer it when it is longer.
     """
-    content = html_path.read_text(encoding="utf-8")
+    content = html_path.read_text(encoding="utf-8-sig")
     sections = re.split(
         rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}\s*</span>\s*</button>)",
         content, flags=re.IGNORECASE,
