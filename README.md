@@ -68,6 +68,11 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --dry-run
 ```
 
+**Check the version:**
+```bash
+python3 speechify_to_pdf.py --version
+```
+
 ## Example Output
 
 Running the tool on a typical document:
