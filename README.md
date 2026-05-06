@@ -78,6 +78,11 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -q
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --password "mysecret"
 ```
 
+**Fix page offset (e.g. PDF has a 20-page preface Speechify doesn't count):**
+```bash
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --page-offset 20
+```
+
 **Check the version:**
 ```bash
 python3 speechify_to_pdf.py --version
@@ -153,7 +158,7 @@ Dry run — no file written. Would save to: Algorithms_highlights.pdf
 
 - **Truncated texts:** Speechify only shows the first ~80 characters of a long highlight in the sidebar. The script marks only the visible beginning — the rest of the passage remains unmarked, as the full text is not available in the saved HTML.
 - **Image pages / scanned PDFs:** On pure image pages without an embedded text layer, no text position can be found (no OCR).
-- **Page offset:** The script searches on the indicated page ±2 pages. With unusual offsets (e.g. books with long prefaces) there may be occasional mismatches.
+- **Page offset:** The script searches on the indicated page ±2 pages. With larger offsets (e.g. books with long prefaces not counted by Speechify) use `--page-offset N` to shift all lookups by N pages.
 
 ## Troubleshooting
 

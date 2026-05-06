@@ -398,6 +398,8 @@ def main():
     parser.add_argument("-q", "--quiet", action="store_true", help="Suppress progress output; only print result and errors")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done without writing output file")
     parser.add_argument("--password", metavar="PASSWORD", help="Password for encrypted/password-protected PDFs")
+    parser.add_argument("--page-offset", type=int, default=0, metavar="N",
+                        help="Shift all page lookups by N pages (e.g. 20 if the PDF has a 20-page preface not counted by Speechify)")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
 
@@ -467,7 +469,7 @@ def main():
     total = len(highlights)
 
     for idx, h in enumerate(highlights, 1):
-        target = h["page"] - 1
+        target = h["page"] - 1 + args.page_offset
         search_order = [target + d for d in [0, -1, 1, -2, 2]
                         if 0 <= target + d < doc.page_count]
 
