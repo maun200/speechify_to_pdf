@@ -423,6 +423,9 @@ def main():
             f"Omit -o to use the default output: {pdf_path.stem}_highlights.pdf"
         )
 
+    if not output_path.parent.exists():
+        sys.exit(f"Error: output directory does not exist: {output_path.parent}")
+
     print(f"HTML:  {html_path.name}")
     highlights = extract_highlights(html_path)
     if not highlights:
