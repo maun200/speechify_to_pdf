@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.5
+Version: 1.1.6
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -21,7 +21,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.5"
+__version__ = "1.1.6"
 
 try:
     import fitz  # PyMuPDF
@@ -390,6 +390,7 @@ def main():
     parser.add_argument("pdf",  nargs="?", help="Local PDF file (optional, auto-detected if omitted)")
     parser.add_argument("-o", "--output", help="Output file (default: <pdf-name>_highlights.pdf)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print all highlights with details")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress progress output; only print result and errors")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done without writing output file")
     parser.add_argument("--password", metavar="PASSWORD", help="Password for encrypted/password-protected PDFs")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -408,7 +409,8 @@ def main():
                 "Could not auto-detect PDF file.\n"
                 "Please specify it explicitly: speechify_to_pdf.py <html> <pdf>"
             )
-        print(f"PDF auto-detected: {pdf_path}")
+        if not args.quiet:
+            print(f"PDF auto-detected: {pdf_path}")
 
     if not pdf_path.exists():
         sys.exit(f"PDF file not found: {pdf_path}")
@@ -430,11 +432,13 @@ def main():
     if not os.access(output_path.parent, os.W_OK):
         sys.exit(f"Error: output directory is not writable: {output_path.parent}")
 
-    print(f"HTML:  {html_path.name}")
+    if not args.quiet:
+        print(f"HTML:  {html_path.name}")
     highlights = extract_highlights(html_path)
     if not highlights:
         sys.exit("No highlights found. Is the correct HTML file specified?")
-    print(f"       {len(highlights)} highlights found")
+    if not args.quiet:
+        print(f"       {len(highlights)} highlights found")
 
     unknown_colors = sorted({h["color"] for h in highlights if h["color"] not in COLOR_MAP})
     for uc in unknown_colors:
@@ -449,7 +453,8 @@ def main():
                 f"PDF is password-protected: {pdf_path.name}\n"
                 f"{hint}Pass --password PASSWORD, or decrypt first (e.g. qpdf --decrypt)."
             )
-    print(f"PDF:   {pdf_path.name}  ({doc.page_count} pages)")
+    if not args.quiet:
+        print(f"PDF:   {pdf_path.name}  ({doc.page_count} pages)")
 
     # ── Pass 1: locate start position of each highlight ──────────────────────
     # Search page hint ±2 pages; record (page_idx, start_rect) or (None, None).
@@ -470,9 +475,11 @@ def main():
                 break
 
         located.append((found_page, found_rect, h))
-        print(f"\r  Locating: {idx}/{total}", end="", flush=True)
+        if not args.quiet:
+            print(f"\r  Locating: {idx}/{total}", end="", flush=True)
 
-    print()  # newline after progress
+    if not args.quiet:
+        print()  # newline after progress
 
     # ── Pass 2: annotate ─────────────────────────────────────────────────────
     done, not_found = 0, []
@@ -513,21 +520,22 @@ def main():
             not_found.append(h)
             if args.verbose:
                 print(f"  ✗ p.{page_idx+1} [{h['color']}] NO RECTS: {h['text'][:60]}")
-        if not args.verbose:
+        if not args.verbose and not args.quiet:
             print(f"\r  Annotating: {i+1}/{total}", end="", flush=True)
 
-    if not args.verbose:
+    if not args.verbose and not args.quiet:
         print()  # newline after progress
     print(f"\nResult: {done}/{len(highlights)} highlights transferred.")
     if not_found:
         print(f"Not found ({len(not_found)}):")
         for h in not_found:
-            print(f"  p.{h['page']}: {h['text'][:80]}")
+            print(f"  p.{h['page']} [{h['color']}]: {h['text'][:80]}")
 
     if args.dry_run:
         doc.close()
         exists_note = " (would overwrite existing file)" if output_path.exists() else ""
-        print(f"\nDry run — no file written. Would save to: {output_path}{exists_note}")
+        if not args.quiet:
+            print(f"\nDry run — no file written. Would save to: {output_path}{exists_note}")
     else:
         if output_path.exists():
             print(f"Warning: overwriting existing output file: {output_path.name}")

@@ -68,6 +68,11 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --dry-run
 ```
 
+**Suppress progress output (useful for scripts/batch processing):**
+```bash
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -q
+```
+
 **Open a password-protected PDF:**
 ```bash
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --password "mysecret"
