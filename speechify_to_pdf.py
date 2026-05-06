@@ -527,7 +527,9 @@ def main():
 
     if not args.verbose and not args.quiet:
         print()  # newline after progress
-    print(f"\nResult: {done}/{len(highlights)} highlights transferred.")
+    if args.verbose:
+        print()  # blank line separator after verbose annotation output
+    print(f"Result: {done}/{len(highlights)} highlights transferred.")
     if not_found:
         print(f"Not found ({len(not_found)}):")
         for h in not_found:
