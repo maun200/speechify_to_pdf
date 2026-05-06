@@ -16,6 +16,7 @@ Usage:
 
 import argparse
 import html
+import os
 import re
 import sys
 from pathlib import Path
@@ -426,6 +427,8 @@ def main():
 
     if not output_path.parent.exists():
         sys.exit(f"Error: output directory does not exist: {output_path.parent}")
+    if not os.access(output_path.parent, os.W_OK):
+        sys.exit(f"Error: output directory is not writable: {output_path.parent}")
 
     print(f"HTML:  {html_path.name}")
     highlights = extract_highlights(html_path)
