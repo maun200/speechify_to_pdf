@@ -314,14 +314,16 @@ def place_complete(
             ok = annotate_span(doc, start_page, y_start, end_page, y_end, color, note)
             if verbose and ok:
                 span = f"p.{start_page+1}" if end_page == start_page else f"p.{start_page+1}–{end_page+1}"
-                print(f"  ✓ {span} [{color_name}]: {text[:55]}")
+                note_tag = " [+note]" if note else ""
+                print(f"  ✓ {span} [{color_name}]{note_tag}: {text[:55]}")
             return ok
 
     # End not found: fall back to start line only
     rects = _collect_lines(doc[start_page], y_start, start_rect.y1 + 2)
     if _safe_highlight(doc[start_page], rects, color, note):
         if verbose:
-            print(f"  ~ p.{start_page+1} [{color_name}] (end not found, start line only): {text[:55]}")
+            note_tag = " [+note]" if note else ""
+            print(f"  ~ p.{start_page+1} [{color_name}]{note_tag} (end not found, start line only): {text[:55]}")
         return True
     return False
 
@@ -346,7 +348,8 @@ def place_truncated(
     rects = _collect_lines(doc[start_page], y_start, y_end)
     if _safe_highlight(doc[start_page], rects, color, note):
         if verbose:
-            print(f"  ✓ p.{start_page+1} [{color_name}] (…): {label[:55]}")
+            note_tag = " [+note]" if note else ""
+            print(f"  ✓ p.{start_page+1} [{color_name}]{note_tag} (…): {label[:55]}")
         return True
     return False
 
@@ -490,7 +493,8 @@ def main():
         if page_idx is None:
             not_found.append(h)
             if args.verbose:
-                print(f"  ✗ p.{h['page']} [{h['color']}] NOT FOUND: {h['text'][:60]}")
+                note_tag = " [+note]" if h["note"] else ""
+                print(f"  ✗ p.{h['page']} [{h['color']}]{note_tag} NOT FOUND: {h['text'][:60]}")
             continue
 
         color = COLOR_MAP.get(h["color"], DEFAULT_COLOR)
@@ -521,7 +525,8 @@ def main():
         else:
             not_found.append(h)
             if args.verbose:
-                print(f"  ✗ p.{page_idx+1} [{h['color']}] NO RECTS: {h['text'][:60]}")
+                note_tag = " [+note]" if h["note"] else ""
+                print(f"  ✗ p.{page_idx+1} [{h['color']}]{note_tag} NO RECTS: {h['text'][:60]}")
         if not args.verbose and not args.quiet:
             print(f"\r  Annotating: {i+1}/{total}", end="", flush=True)
 
