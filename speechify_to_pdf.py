@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.6
+Version: 1.1.7
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -21,7 +21,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.6"
+__version__ = "1.1.7"
 
 try:
     import fitz  # PyMuPDF
@@ -44,8 +44,10 @@ DEFAULT_COLOR = (1.0, 0.93, 0.0)
 # Covers: English, French (Page), German (Seite), Spanish (Página),
 # Italian (Pagina/Pagine), Dutch (Pagina), Korean (페이지), Japanese (ページ),
 # Russian (Страница), Czech (Strana), Polish (Strona), Turkish (Sayfa),
-# Traditional Chinese (頁), Simplified Chinese (页)
-_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa|頁|页)"
+# Traditional Chinese (頁), Simplified Chinese (页), Swedish (Sida),
+# Danish/Norwegian (Side), Finnish (Sivu), Hungarian (Oldal),
+# Vietnamese (Trang), Arabic (صفحة)
+_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|Sida|Side|Sivu|Oldal|Trang|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa|頁|页|صفحة)"
 
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
 _WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"
