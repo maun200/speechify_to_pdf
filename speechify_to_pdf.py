@@ -395,6 +395,12 @@ def main():
         else pdf_path.parent / (pdf_path.stem + "_highlights.pdf")
     )
 
+    if output_path == pdf_path:
+        sys.exit(
+            f"Error: output path is the same as the input PDF — this would overwrite your original.\n"
+            f"Omit -o to use the default output: {pdf_path.stem}_highlights.pdf"
+        )
+
     print(f"HTML:  {html_path.name}")
     highlights = extract_highlights(html_path)
     if not highlights:
