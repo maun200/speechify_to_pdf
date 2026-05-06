@@ -233,3 +233,12 @@ def test_find_start_rstrip_coverage():
     for ch in "!?)]}'\"":
         stripped = f"word{ch}".rstrip(".,;:!?)]}'\"")
         assert stripped == "word", f"rstrip missed '{ch}'"
+
+
+def test_rstrip_handles_curly_quotes():
+    # Both find_start and find_end_on_page must strip curly (typographic) quotes
+    # as well as straight ASCII quotes, since Speechify can export either style.
+    import speechify_to_pdf as stp_module
+    rstrip_chars = ".,;:!?)]}'\"" + "’”"
+    for ch in ["'", '"', "’", "”"]:
+        assert f"word{ch}".rstrip(rstrip_chars) == "word", f"rstrip missed {ch!r}"

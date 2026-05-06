@@ -178,7 +178,7 @@ def find_start(page: fitz.Page, text: str) -> fitz.Rect | None:
 
     # Very short text: direct search
     if len(words) <= 2:
-        for query in (text, text.rstrip(".,;:!?)]}’”")):
+        for query in (text, text.rstrip(".,;:!?)]}'\"" + "’”")):
             hits = page.search_for(query)
             if hits:
                 return hits[0]
@@ -213,7 +213,7 @@ def find_end_on_page(
 
     for n in range(min(8, len(words)), 1, -1):
         suffix = " ".join(words[-n:])
-        stripped = suffix.rstrip(".,;:!?)]}'\"")
+        stripped = suffix.rstrip(".,;:!?)]}'\"" + "’”")
         for query in dict.fromkeys([suffix, stripped]):
             for r in page.search_for(query):
                 if r.y0 >= y_min - 2:
