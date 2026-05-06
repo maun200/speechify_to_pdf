@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.4
+Version: 1.1.5
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -20,7 +20,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 
 try:
     import fitz  # PyMuPDF
@@ -390,6 +390,7 @@ def main():
     parser.add_argument("-o", "--output", help="Output file (default: <pdf-name>_highlights.pdf)")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print all highlights with details")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done without writing output file")
+    parser.add_argument("--password", metavar="PASSWORD", help="Password for encrypted/password-protected PDFs")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
 
@@ -437,12 +438,14 @@ def main():
         print(f"Warning: unknown highlight color '{uc}' — will render as yellow")
 
     doc = fitz.open(pdf_path)
-    if doc.is_encrypted and not doc.authenticate(""):
-        doc.close()
-        sys.exit(
-            f"PDF is password-protected: {pdf_path.name}\n"
-            "Please decrypt the file first (e.g. with qpdf --decrypt) and try again."
-        )
+    if doc.is_encrypted:
+        if not doc.authenticate(args.password or ""):
+            doc.close()
+            hint = "Wrong password.\n" if args.password else ""
+            sys.exit(
+                f"PDF is password-protected: {pdf_path.name}\n"
+                f"{hint}Pass --password PASSWORD, or decrypt first (e.g. qpdf --decrypt)."
+            )
     print(f"PDF:   {pdf_path.name}  ({doc.page_count} pages)")
 
     # ── Pass 1: locate start position of each highlight ──────────────────────

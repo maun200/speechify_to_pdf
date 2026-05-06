@@ -68,6 +68,11 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --dry-run
 ```
 
+**Open a password-protected PDF:**
+```bash
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --password "mysecret"
+```
+
 **Check the version:**
 ```bash
 python3 speechify_to_pdf.py --version
@@ -155,6 +160,9 @@ Dry run — no file written. Would save to: Algorithms_highlights.pdf
 
 **`UnicodeDecodeError` when reading the HTML file**
 → Your browser saved the page in a non-UTF-8 encoding. The script automatically falls back to `latin-1`; if you still see errors, re-save the page in your browser and ensure "UTF-8" is selected in the save dialog.
+
+**"PDF is password-protected"**
+→ Pass the password with `--password "yourpassword"`. If you don't know the password, decrypt the file first with `qpdf --decrypt input.pdf output.pdf`.
 
 **`ModuleNotFoundError: No module named 'fitz'`**
 → Run `pip install pymupdf`.
