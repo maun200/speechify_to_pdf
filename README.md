@@ -153,6 +153,9 @@ Dry run — no file written. Would save to: Algorithms_highlights.pdf
 **Many "NOT FOUND"**
 → The HTML and PDF might be from different versions of the book. Or: the PDF contains scanned text without a text layer.
 
+**`UnicodeDecodeError` when reading the HTML file**
+→ Your browser saved the page in a non-UTF-8 encoding. The script automatically falls back to `latin-1`; if you still see errors, re-save the page in your browser and ensure "UTF-8" is selected in the save dialog.
+
 **`ModuleNotFoundError: No module named 'fitz'`**
 → Run `pip install pymupdf`.
 
