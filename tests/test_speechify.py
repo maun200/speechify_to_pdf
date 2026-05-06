@@ -192,6 +192,24 @@ def test_parse_page_num_roman_upper():
     assert stp._parse_page_num("XLII") == 42
 
 
+def test_parse_page_num_alphanumeric():
+    assert stp._parse_page_num("A-1") == 1
+    assert stp._parse_page_num("B2") == 2
+    assert stp._parse_page_num("C-10") == 10
+
+
+def test_extract_alphanumeric_page(tmp_path):
+    html = '<span>Page A-3</span></button>\n' \
+           'aria-label="Highlight: Appendix text . Has context menu" ' \
+           'class="bg-bg-highlight-notes-green foo"><span>Appendix text</span>'
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 3
+    assert result[0]["color"] == "green"
+
+
 def _make_html_roman(entries: list[dict]) -> str:
     blocks = []
     current_page = None
