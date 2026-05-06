@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.3
+Version: 1.1.4
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -20,7 +20,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 
 try:
     import fitz  # PyMuPDF
@@ -94,7 +94,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
     except UnicodeDecodeError:
         content = html_path.read_text(encoding="latin-1")
     sections = re.split(
-        rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}\s*</span>\s*</button>)",
+        rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}\s*</span>[^<]*</button>)",
         content, flags=re.IGNORECASE,
     )
 
