@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.1
+Version: 1.1.2
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -20,7 +20,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 try:
     import fitz  # PyMuPDF
@@ -178,7 +178,7 @@ def find_start(page: fitz.Page, text: str) -> fitz.Rect | None:
 
     # Very short text: direct search
     if len(words) <= 2:
-        for query in (text, text.rstrip(".,;:")):
+        for query in (text, text.rstrip(".,;:!?)]}’”")):
             hits = page.search_for(query)
             if hits:
                 return hits[0]
@@ -213,9 +213,11 @@ def find_end_on_page(
 
     for n in range(min(8, len(words)), 1, -1):
         suffix = " ".join(words[-n:])
-        for r in page.search_for(suffix):
-            if r.y0 >= y_min - 2:
-                return r.y1
+        stripped = suffix.rstrip(".,;:!?)]}'\"")
+        for query in dict.fromkeys([suffix, stripped]):
+            for r in page.search_for(query):
+                if r.y0 >= y_min - 2:
+                    return r.y1
     return None
 
 

@@ -225,3 +225,11 @@ def test_extract_nbsp_entity_in_page_label(tmp_path):
     result = stp.extract_highlights(f)
     assert len(result) == 1
     assert result[0]["page"] == 7
+
+
+# ── find_start trailing-punctuation strip ─────────────────────────────────────
+
+def test_find_start_rstrip_coverage():
+    for ch in "!?)]}'\"":
+        stripped = f"word{ch}".rstrip(".,;:!?)]}'\"")
+        assert stripped == "word", f"rstrip missed '{ch}'"
