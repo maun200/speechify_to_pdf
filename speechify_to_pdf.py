@@ -47,7 +47,7 @@ DEFAULT_COLOR = (1.0, 0.93, 0.0)
 _PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa|頁|页)"
 
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
-_WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx][Aa]0;)+"
+_WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"
 
 # Matches decimal, alphanumeric (e.g. "A-1", "B2"), or roman-numeral page numbers
 # Order matters: alphanumeric must come before roman to avoid "D" being parsed as 500

@@ -171,6 +171,8 @@ def test_ws_matches_nbsp_entities():
     assert re.match(stp._WS, "&#160;")
     assert re.match(stp._WS, "&#xA0;")
     assert re.match(stp._WS, "&#Xa0;")
+    assert re.match(stp._WS, "&#x00A0;")
+    assert re.match(stp._WS, "&#x0A0;")
 
 
 def test_parse_page_num_decimal():
