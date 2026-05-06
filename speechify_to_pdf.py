@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.2
+Version: 1.1.3
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -20,7 +20,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.2"
+__version__ = "1.1.3"
 
 try:
     import fitz  # PyMuPDF
@@ -428,6 +428,10 @@ def main():
     if not highlights:
         sys.exit("No highlights found. Is the correct HTML file specified?")
     print(f"       {len(highlights)} highlights found")
+
+    unknown_colors = sorted({h["color"] for h in highlights if h["color"] not in COLOR_MAP})
+    for uc in unknown_colors:
+        print(f"Warning: unknown highlight color '{uc}' — will render as yellow")
 
     doc = fitz.open(pdf_path)
     if doc.is_encrypted and not doc.authenticate(""):
