@@ -21,6 +21,12 @@ jobs:
       - name: Syntax check
         run: python3 -m py_compile speechify_to_pdf.py
       - name: Install dependencies
-        run: pip install pymupdf pytest
+        run: pip install pymupdf pytest build
       - name: Run tests
         run: python3 -m pytest tests/ -v
+      - name: Build package
+        run: python3 -m build
+      - name: Install built wheel and verify entry point
+        run: |
+          pip install dist/*.whl
+          speechify-to-pdf --version
