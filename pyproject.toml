@@ -10,8 +10,26 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 dependencies = ["pymupdf>=1.27.2.3"]
+authors = [
+    {name = "maun200", email = "maun200@users.noreply.github.com"},
+]
+keywords = ["speechify", "pdf", "annotations", "highlights", "productivity", "pymupdf"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Utilities",
+]
 
 [project.urls]
+Homepage = "https://github.com/maun200/speechify_to_pdf"
 Repository = "https://github.com/maun200/speechify_to_pdf"
 "Bug Tracker" = "https://github.com/maun200/speechify_to_pdf/issues"
 
