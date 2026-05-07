@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.8
+Version: 1.1.9
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -21,7 +21,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.8"
+__version__ = "1.1.9"
 
 try:
     import fitz  # PyMuPDF
@@ -43,11 +43,11 @@ DEFAULT_COLOR = (1.0, 0.93, 0.0)
 # Page label words across Speechify UI languages (matched case-insensitively)
 # Covers: English, French (Page), German (Seite), Spanish (Página),
 # Italian (Pagina/Pagine), Dutch (Pagina), Korean (페이지), Japanese (ページ),
-# Russian (Страница), Czech (Strana), Polish (Strona), Turkish (Sayfa),
-# Traditional Chinese (頁), Simplified Chinese (页), Swedish (Sida),
+# Russian (Страница), Ukrainian (Сторінка), Czech (Strana), Polish (Strona),
+# Turkish (Sayfa), Traditional Chinese (頁), Simplified Chinese (页), Swedish (Sida),
 # Danish/Norwegian (Side), Finnish (Sivu), Hungarian (Oldal),
 # Vietnamese (Trang), Arabic (صفحة)
-_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|Sida|Side|Sivu|Oldal|Trang|페이지|ページ|[Сс]траница|Strana|Strona|Sayfa|頁|页|صفحة)"
+_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|Sida|Side|Sivu|Oldal|Trang|페이지|ページ|[Сс]траница|[Сс]торінка|Strana|Strona|Sayfa|頁|页|صفحة)"
 
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
 _WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"
@@ -185,7 +185,8 @@ def find_start(page: fitz.Page, text: str) -> fitz.Rect | None:
 
     # Very short text: direct search
     if len(words) <= 2:
-        for query in (text, text.rstrip(_TRAILING_PUNCT)):
+        stripped = text.rstrip(_TRAILING_PUNCT)
+        for query in dict.fromkeys([text, stripped]):
             hits = page.search_for(query)
             if hits:
                 return hits[0]
