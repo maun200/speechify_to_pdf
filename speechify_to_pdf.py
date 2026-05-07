@@ -358,6 +358,17 @@ def place_truncated(
 
 # ── Guess PDF path from HTML filename ────────────────────────────────────────
 
+def _iter_pdfs(d: Path, max_depth: int = 3):
+    """Yield .pdf paths under d, stopping recursion at max_depth to avoid hangs."""
+    for root, dirs, files in os.walk(d):
+        depth = len(Path(root).relative_to(d).parts)
+        if depth >= max_depth:
+            dirs[:] = []
+        for f in files:
+            if f.lower().endswith(".pdf"):
+                yield Path(root) / f
+
+
 def guess_pdf_path(html_path: Path) -> Path | None:
     name = html_path.stem
     pdf_name_stem = re.sub(r"\s*[-_]\s*Speechify$", "", name, flags=re.IGNORECASE).strip()
@@ -382,8 +393,8 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         direct = d / pdf_name_stem
         if direct.is_file():
             return direct
-        for candidate in d.rglob("*.pdf"):
-            if candidate.is_file() and candidate.name.lower() == pdf_name_stem.lower():
+        for candidate in _iter_pdfs(d):
+            if candidate.name.lower() == pdf_name_stem.lower():
                 return candidate
     return None
 
