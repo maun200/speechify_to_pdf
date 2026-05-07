@@ -430,9 +430,10 @@ def main():
     )
 
     if output_path == pdf_path:
+        default_out = pdf_path.parent / (pdf_path.stem + "_highlights.pdf")
         sys.exit(
             f"Error: output path is the same as the input PDF — this would overwrite your original.\n"
-            f"Omit -o to use the default output: {pdf_path.stem}_highlights.pdf"
+            f"Omit -o to use the default output: {default_out}"
         )
 
     if not output_path.parent.exists():
