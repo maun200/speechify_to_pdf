@@ -62,6 +62,7 @@ _PAGE_NUM     = r"("   + _PAGE_NUM_PAT + ")"     # capturing group (for match.gr
 _MAX_SPAN_PAGES = 8
 
 _ROMAN_MAP = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
+_TRAILING_PUNCT = ".,;:!?)]}'" + "’”"
 
 
 def _parse_page_num(s: str) -> int:
@@ -184,7 +185,7 @@ def find_start(page: fitz.Page, text: str) -> fitz.Rect | None:
 
     # Very short text: direct search
     if len(words) <= 2:
-        for query in (text, text.rstrip(".,;:!?)]}'\"" + "’”")):
+        for query in (text, text.rstrip(_TRAILING_PUNCT)):
             hits = page.search_for(query)
             if hits:
                 return hits[0]
@@ -221,7 +222,7 @@ def find_end_on_page(
     # The range loop below never tries n=1, so single-word texts must be
     # handled here to avoid always falling back to "start line only".
     if len(words) <= 2:
-        stripped = text.rstrip(".,;:!?)]}'\"" + "’”")
+        stripped = text.rstrip(_TRAILING_PUNCT)
         for query in dict.fromkeys([text, stripped]):
             for r in page.search_for(query):
                 if r.y0 >= y_min - 2:
@@ -230,7 +231,7 @@ def find_end_on_page(
 
     for n in range(min(8, len(words)), 1, -1):
         suffix = " ".join(words[-n:])
-        stripped = suffix.rstrip(".,;:!?)]}'\"" + "’”")
+        stripped = suffix.rstrip(_TRAILING_PUNCT)
         for query in dict.fromkeys([suffix, stripped]):
             for r in page.search_for(query):
                 if r.y0 >= y_min - 2:
