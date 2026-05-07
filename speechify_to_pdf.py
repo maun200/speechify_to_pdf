@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.9
+Version: 1.2.0
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -21,7 +21,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.9"
+__version__ = "1.2.0"
 
 try:
     import fitz  # PyMuPDF
@@ -429,7 +429,7 @@ def main():
         if not pdf_path:
             sys.exit(
                 "Could not auto-detect PDF file.\n"
-                "Please specify it explicitly: speechify_to_pdf.py <html> <pdf>"
+                f"Please specify it explicitly: {parser.prog} <html> <pdf>"
             )
         if not args.quiet:
             print(f"PDF auto-detected: {pdf_path}")
@@ -561,7 +561,7 @@ def main():
             page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
                          if args.page_offset else f"p.{h['page']}")
             print(f"  {page_info} [{h['color']}]: {h['text'][:80]}")
-        if len(not_found) >= max(3, len(highlights) // 4):
+        if len(not_found) >= max(2, len(highlights) // 4):
             if not args.page_offset:
                 print(
                     "\nTip: many highlights were not found. If your PDF has unnumbered front "
