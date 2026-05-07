@@ -97,7 +97,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
     except UnicodeDecodeError:
         content = html_path.read_text(encoding="latin-1")
     sections = re.split(
-        rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}\s*</span>[^<]*</button>)",
+        rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}\s*</span>[\s\S]*?</button>)",
         content, flags=re.IGNORECASE,
     )
 
