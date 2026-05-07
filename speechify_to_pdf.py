@@ -488,6 +488,7 @@ def main():
     # Search page hint ±2 pages; record (page_idx, start_rect) or (None, None).
     located: list[tuple[int | None, fitz.Rect | None, dict]] = []
     total = len(highlights)
+    is_tty = sys.stdout.isatty()
 
     for idx, h in enumerate(highlights, 1):
         target = h["page"] - 1 + args.page_offset
@@ -503,11 +504,11 @@ def main():
                 break
 
         located.append((found_page, found_rect, h))
-        if not args.quiet:
+        if not args.quiet and is_tty:
             print(f"\r  Locating: {idx}/{total}", end="", flush=True)
 
-    if not args.quiet:
-        print()  # newline after progress
+    if not args.quiet and is_tty:
+        print()  # newline after \r-based progress
 
     # ── Pass 2: annotate ─────────────────────────────────────────────────────
     done, not_found = 0, []
@@ -552,11 +553,11 @@ def main():
             if args.verbose:
                 note_tag = " [+note]" if h["note"] else ""
                 print(f"  ✗ p.{page_idx+1} [{h['color']}]{note_tag} NO RECTS: {h['text'][:60]}")
-        if not args.verbose and not args.quiet:
+        if not args.verbose and not args.quiet and is_tty:
             print(f"\r  Annotating: {i+1}/{total}", end="", flush=True)
 
-    if not args.verbose and not args.quiet:
-        print()  # newline after progress
+    if not args.verbose and not args.quiet and is_tty:
+        print()  # newline after \r-based progress
     if args.verbose:
         print()  # blank line separator after verbose annotation output
     print(f"Result: {done}/{len(highlights)} highlights transferred.")
