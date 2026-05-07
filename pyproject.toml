@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=65"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "speechify-to-pdf"
+version = "1.1.8"
+description = "Transfer Speechify highlights as annotations into a local PDF file"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = ["pymupdf>=1.27.2.3"]
+
+[project.urls]
+Repository = "https://github.com/maun200/speechify_to_pdf"
+"Bug Tracker" = "https://github.com/maun200/speechify_to_pdf/issues"
+
+[project.scripts]
+speechify-to-pdf = "speechify_to_pdf:main"
+
+[tool.setuptools]
+py-modules = ["speechify_to_pdf"]

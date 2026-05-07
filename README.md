@@ -3,6 +3,7 @@
 **Transfer your Speechify highlights directly into your PDF** — as real, standard-compliant PDF annotations, compatible with Citavi, Zotero, Adobe Acrobat, Okular, and every other PDF reader.
 
 [![CI](https://github.com/maun200/speechify_to_pdf/actions/workflows/ci.yml/badge.svg)](https://github.com/maun200/speechify_to_pdf/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/speechify-to-pdf.svg)](https://pypi.org/project/speechify-to-pdf/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![GitHub Stars](https://img.shields.io/github/stars/maun200/speechify_to_pdf?style=social)](https://github.com/maun200/speechify_to_pdf/stargazers)
@@ -17,10 +18,21 @@
 
 Speechify lets you read and highlight PDFs — but your highlights stay locked inside Speechify. This tool extracts them from the saved HTML export and writes them back into your local PDF as proper annotations. Your highlights, your PDF, your reader.
 
-## Requirements
+## Installation
+
+### Via pip (recommended)
+
+```bash
+pip install speechify-to-pdf
+```
+
+This installs the `speechify-to-pdf` command globally.
+
+### Manual
 
 ```bash
 pip install pymupdf
+# then download speechify_to_pdf.py and run it directly
 ```
 
 Python 3.10 or newer.
@@ -40,7 +52,13 @@ Python 3.10 or newer.
 
 > **Note:** The sidebar with highlights must be visible when you save. If it is collapsed, expand it (icon in the top left) and save again.
 
-### 2. Run the script
+### 2. Run the tool
+
+```bash
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf"
+```
+
+Or if you downloaded the script directly:
 
 ```bash
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf"
@@ -50,12 +68,12 @@ This creates `Book_highlights.pdf` in the same folder as the original PDF.
 
 **Custom output path:**
 ```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -o "Book_annotated.pdf"
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" -o "Book_annotated.pdf"
 ```
 
 **Print all highlights with details:**
 ```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -v
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" -v
 ```
 
 **Auto-detect the PDF (if HTML filename matches):**
