@@ -549,6 +549,12 @@ def main():
             page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
                          if args.page_offset else f"p.{h['page']}")
             print(f"  {page_info} [{h['color']}]: {h['text'][:80]}")
+        if not args.page_offset and len(not_found) >= max(3, len(highlights) // 4):
+            print(
+                "\nTip: many highlights were not found. If your PDF has unnumbered front "
+                "matter (cover, preface, TOC) that Speechify does not count, try "
+                "--page-offset N (e.g. --page-offset 20)."
+            )
 
     if args.dry_run:
         doc.close()
