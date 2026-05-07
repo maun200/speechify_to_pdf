@@ -394,8 +394,9 @@ def main():
     parser.add_argument("html", help="Saved Speechify HTML file")
     parser.add_argument("pdf",  nargs="?", help="Local PDF file (optional, auto-detected if omitted)")
     parser.add_argument("-o", "--output", help="Output file (default: <pdf-name>_highlights.pdf)")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Print all highlights with details")
-    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress progress output; only print result and errors")
+    verbosity = parser.add_mutually_exclusive_group()
+    verbosity.add_argument("-v", "--verbose", action="store_true", help="Print all highlights with details")
+    verbosity.add_argument("-q", "--quiet", action="store_true", help="Suppress progress output; only print result and errors")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done without writing output file")
     parser.add_argument("--password", metavar="PASSWORD", help="Password for encrypted/password-protected PDFs")
     parser.add_argument("--page-offset", type=int, default=0, metavar="N",
