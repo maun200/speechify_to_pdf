@@ -346,7 +346,12 @@ def place_truncated(
     Caps at the next highlight's start or at 8 lines, whichever is smaller.
     """
     y_cap = y_start + line_height * 8
-    y_end = min(next_y_same_page, y_cap) if next_y_same_page is not None else y_cap
+    # Only use next_y as cap if it is actually below the current highlight
+    # (rare edge case: footnotes or sidebars can place a later highlight above)
+    if next_y_same_page is not None and next_y_same_page > y_start:
+        y_end = min(next_y_same_page, y_cap)
+    else:
+        y_end = y_cap
     rects = _collect_lines(doc[start_page], y_start, y_end)
     if _safe_highlight(doc[start_page], rects, color, note):
         if verbose:
