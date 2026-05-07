@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.1.7
+Version: 1.1.8
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -21,7 +21,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.1.7"
+__version__ = "1.1.8"
 
 try:
     import fitz  # PyMuPDF
@@ -498,7 +498,9 @@ def main():
             not_found.append(h)
             if args.verbose:
                 note_tag = " [+note]" if h["note"] else ""
-                print(f"  ✗ p.{h['page']} [{h['color']}]{note_tag} NOT FOUND: {h['text'][:60]}")
+                page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
+                             if args.page_offset else f"p.{h['page']}")
+                print(f"  ✗ {page_info} [{h['color']}]{note_tag} NOT FOUND: {h['text'][:60]}")
             continue
 
         color = COLOR_MAP.get(h["color"], DEFAULT_COLOR)
@@ -542,7 +544,9 @@ def main():
     if not_found:
         print(f"Not found ({len(not_found)}):")
         for h in not_found:
-            print(f"  p.{h['page']} [{h['color']}]: {h['text'][:80]}")
+            page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
+                         if args.page_offset else f"p.{h['page']}")
+            print(f"  {page_info} [{h['color']}]: {h['text'][:80]}")
 
     if args.dry_run:
         doc.close()
