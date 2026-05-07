@@ -365,6 +365,7 @@ def guess_pdf_path(html_path: Path) -> Path | None:
     search_dirs = [
         html_path.parent,
         html_path.parent.parent,
+        Path.cwd(),
         Path.home() / "Documents",
         Path.home() / "Dokumente",      # German
         Path.home() / "Documentos",     # Spanish / Portuguese

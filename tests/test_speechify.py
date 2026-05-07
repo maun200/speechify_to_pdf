@@ -116,6 +116,20 @@ def test_guess_pdf_path_parent_dir(tmp_path):
     assert found == pdf
 
 
+def test_guess_pdf_path_cwd(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    pdf = tmp_path / "Thesis.pdf"
+    pdf.touch()
+    # HTML lives in a completely unrelated sub-directory
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "Thesis _ Speechify.html"
+    html.touch()
+
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_not_found(tmp_path):
     html = tmp_path / "Ghost _ Speechify.html"
     html.touch()
