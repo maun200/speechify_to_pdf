@@ -575,6 +575,10 @@ def main():
                     "decrease it if they appear too late."
                 )
 
+    if done == 0 and not args.dry_run:
+        doc.close()
+        sys.exit("No highlights were transferred — output file not written.")
+
     if args.dry_run:
         doc.close()
         exists_note = " (would overwrite existing file)" if output_path.exists() else ""
