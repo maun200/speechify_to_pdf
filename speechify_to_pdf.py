@@ -198,9 +198,11 @@ def find_start(page: fitz.Page, text: str) -> fitz.Rect | None:
         if hits:
             return hits[0]
 
-    # Fallback: skip leading word(s) to dodge orphaned hyphens
+    # Fallback: skip leading word(s) to dodge orphaned hyphens.
+    # Stop at n=2 (inclusive) so 3-word texts get a 2-word substring try —
+    # mirroring find_end_on_page which already uses range(..., 1, -1).
     for skip in range(1, min(4, len(words))):
-        for n in range(min(7, len(words) - skip), 2, -1):
+        for n in range(min(7, len(words) - skip), 1, -1):
             hits = page.search_for(" ".join(words[skip:skip + n]))
             if hits:
                 return hits[0]
@@ -464,7 +466,13 @@ def main():
         print(f"HTML:  {html_path.name}")
     highlights = extract_highlights(html_path)
     if not highlights:
-        sys.exit("No highlights found. Is the correct HTML file specified?")
+        sys.exit(
+            "No highlights found.\n"
+            "  • Was the highlights sidebar visible when you saved the page?\n"
+            "    Expand it (icon in the top-left), then save again with File → Save Page As.\n"
+            "  • Did you save as 'Webpage, Complete' (not 'HTML only')?\n"
+            "  • Is the correct HTML file specified?"
+        )
     if not args.quiet:
         print(f"       {len(highlights)} highlights found")
 
