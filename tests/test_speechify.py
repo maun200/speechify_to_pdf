@@ -191,6 +191,10 @@ def test_page_words_matches_japanese():
     assert re.match(stp._PAGE_WORDS, "ページ")
 
 
+def test_page_words_matches_thai():
+    assert re.match(stp._PAGE_WORDS, "หน้า")
+
+
 # ── _WS / _PAGE_NUM / _parse_page_num ────────────────────────────────────────
 
 def test_ws_matches_nbsp_entities():
