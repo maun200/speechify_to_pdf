@@ -379,7 +379,7 @@ def _iter_pdfs(d: Path, max_depth: int = 3):
 
 def guess_pdf_path(html_path: Path) -> Path | None:
     name = html_path.stem
-    pdf_name_stem = re.sub(r"\s*[-_]\s*Speechify$", "", name, flags=re.IGNORECASE).strip()
+    pdf_name_stem = re.sub(r"\s*[-_|–—]\s*Speechify$", "", name, flags=re.IGNORECASE).strip()
     if not pdf_name_stem.lower().endswith(".pdf"):
         pdf_name_stem += ".pdf"
 
