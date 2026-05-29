@@ -458,6 +458,12 @@ def main():
             f"Omit -o to use the default output: {default_out}"
         )
 
+    if output_path == html_path:
+        sys.exit(
+            f"Error: output path is the same as the input HTML file — this would overwrite your source.\n"
+            f"Please choose a different output path."
+        )
+
     if not output_path.parent.exists():
         sys.exit(f"Error: output directory does not exist: {output_path.parent}")
     if not os.access(output_path.parent, os.W_OK):

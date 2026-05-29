@@ -319,3 +319,24 @@ def test_find_start_skip_fallback_range_4word():
     skip = 1
     ns = list(range(min(7, len(words) - skip), 1, -1))
     assert ns == [3, 2]
+
+
+# ── output-path safety guards ─────────────────────────────────────────────────
+
+def test_output_path_same_as_html_is_rejected(tmp_path, monkeypatch, capsys):
+    """Specifying the HTML file as -o output must be rejected before any work."""
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text('<span>Page 1</span></button>\n', encoding="utf-8")
+    pdf = tmp_path / "Book.pdf"
+    pdf.touch()
+
+    with pytest.raises(SystemExit) as exc_info:
+        import sys as _sys
+        _sys.argv = ["speechify-to-pdf", str(html), str(pdf), "-o", str(html)]
+        stp_module.main()
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "same as the input HTML" in captured.out or "same as the input HTML" in str(exc_info.value.code)
