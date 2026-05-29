@@ -517,6 +517,8 @@ def main():
 
     if not args.quiet and is_tty:
         print()  # newline after \r-based progress
+    elif not args.quiet:
+        print(f"  Locating: {total}/{total}")
 
     # ── Pass 2: annotate ─────────────────────────────────────────────────────
     done, not_found = 0, []
@@ -566,6 +568,8 @@ def main():
 
     if not args.verbose and not args.quiet and is_tty:
         print()  # newline after \r-based progress
+    elif not args.verbose and not args.quiet:
+        print(f"  Annotating: {total}/{total}")
     if args.verbose:
         print()  # blank line separator after verbose annotation output
     print(f"Result: {done}/{len(highlights)} highlights transferred.")
