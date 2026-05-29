@@ -195,6 +195,11 @@ def test_page_words_matches_thai():
     assert re.match(stp._PAGE_WORDS, "หน้า")
 
 
+def test_page_words_matches_catalan():
+    assert re.match(stp._PAGE_WORDS, "Pàgina")
+    assert re.match(stp._PAGE_WORDS, "pàgina", re.IGNORECASE)
+
+
 # ── _WS / _PAGE_NUM / _parse_page_num ────────────────────────────────────────
 
 def test_ws_matches_nbsp_entities():
