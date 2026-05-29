@@ -340,3 +340,22 @@ def test_output_path_same_as_html_is_rejected(tmp_path, monkeypatch, capsys):
     assert exc_info.value.code != 0
     captured = capsys.readouterr()
     assert "same as the input HTML" in captured.out or "same as the input HTML" in str(exc_info.value.code)
+
+
+def test_output_path_same_as_pdf_is_rejected(tmp_path, monkeypatch, capsys):
+    """Specifying the input PDF as -o output must be rejected to prevent overwriting the original."""
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text('<span>Page 1</span></button>\n', encoding="utf-8")
+    pdf = tmp_path / "Book.pdf"
+    pdf.touch()
+
+    with pytest.raises(SystemExit) as exc_info:
+        import sys as _sys
+        _sys.argv = ["speechify-to-pdf", str(html), str(pdf), "-o", str(pdf)]
+        stp_module.main()
+
+    assert exc_info.value.code != 0
+    captured = capsys.readouterr()
+    assert "same as the input PDF" in captured.out or "same as the input PDF" in str(exc_info.value.code)
