@@ -588,7 +588,7 @@ def main():
                          if args.page_offset else f"p.{h['page']}")
             note_tag = " [+note]" if h["note"] else ""
             print(f"  {page_info} [{h['color']}]{note_tag}: {h['text'][:80]}")
-        if len(not_found) >= max(2, len(highlights) // 4):
+        if len(not_found) >= max(1, len(highlights) // 4):
             if not args.page_offset:
                 print(
                     "\nTip: many highlights were not found. If your PDF has unnumbered front "
