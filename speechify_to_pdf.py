@@ -479,7 +479,7 @@ def main():
 
     unknown_colors = sorted({h["color"] for h in highlights if h["color"] not in COLOR_MAP})
     for uc in unknown_colors:
-        print(f"Warning: unknown highlight color '{uc}' — will render as yellow")
+        print(f"Warning: unknown highlight color '{uc}' — will render as yellow", file=sys.stderr)
 
     doc = fitz.open(pdf_path)
     if doc.is_encrypted:
@@ -606,7 +606,7 @@ def main():
             print(f"\nDry run — no file written. Would save to: {output_path}{exists_note}")
     else:
         if output_path.exists():
-            print(f"Warning: overwriting existing output file: {output_path.name}")
+            print(f"Warning: overwriting existing output file: {output_path.name}", file=sys.stderr)
         # garbage=0: skip xref rebuild — DRM PDFs have intentionally broken
         # xref tables that garbage=4 would corrupt on re-save.
         doc.save(output_path, garbage=0, deflate=True)
