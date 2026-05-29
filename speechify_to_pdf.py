@@ -10,8 +10,8 @@ Highlights are matched exactly: single characters, single lines, and
 multi-page spans are all handled correctly.
 
 Usage:
-    python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf"
-    python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"   # PDF path auto-detected
+    python3 speechify_to_pdf.py "My Book - Speechify.html" "My Book.pdf"
+    python3 speechify_to_pdf.py "My Book - Speechify.html"   # PDF path auto-detected
 """
 
 import argparse
@@ -41,7 +41,7 @@ COLOR_MAP = {
 DEFAULT_COLOR = (1.0, 0.93, 0.0)
 
 # Page label words across Speechify UI languages (matched case-insensitively)
-# Covers: English, French (Page), German (Seite), Spanish (Página),
+# Covers: English, French (Page), German (Seite), Spanish/Portuguese (Página),
 # Italian (Pagina/Pagine), Dutch (Pagina), Korean (페이지), Japanese (ページ),
 # Russian (Страница), Ukrainian (Сторінка), Czech (Strana), Polish (Strona),
 # Turkish (Sayfa), Traditional Chinese (頁), Simplified Chinese (页), Swedish (Sida),

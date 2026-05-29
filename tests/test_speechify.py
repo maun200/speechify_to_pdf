@@ -274,3 +274,26 @@ def test_rstrip_handles_curly_quotes():
     rstrip_chars = ".,;:!?)]}'\"" + "’”"
     for ch in ["'", '"', "’", "”"]:
         assert f"word{ch}".rstrip(rstrip_chars) == "word", f"rstrip missed {ch!r}"
+
+
+# ── find_start skip-fallback range ──────────────────────────────────────────────────────────────────────────────
+
+def test_find_start_skip_fallback_range_3word():
+    # For a 3-word text the skip fallback must produce a 2-word candidate;
+    # range(min(7, 3-1), 1, -1) == [2], so words[1:3] is tried.
+    # Before the fix the stop was 2, giving range(2,2,-1)==[] (empty, no try).
+    words = "The Quick Fox".split()
+    skip = 1
+    candidates = [
+        words[skip:skip + n]
+        for n in range(min(7, len(words) - skip), 1, -1)
+    ]
+    assert candidates == [["Quick", "Fox"]], f"Expected 2-word fallback, got {candidates}"
+
+
+def test_find_start_skip_fallback_range_4word():
+    # For a 4-word text with skip=1 the range should yield n in [3, 2].
+    words = "The Quick Brown Fox".split()
+    skip = 1
+    ns = list(range(min(7, len(words) - skip), 1, -1))
+    assert ns == [3, 2]
