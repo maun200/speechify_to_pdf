@@ -580,7 +580,8 @@ def main():
         for h in not_found:
             page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
                          if args.page_offset else f"p.{h['page']}")
-            print(f"  {page_info} [{h['color']}]: {h['text'][:80]}")
+            note_tag = " [+note]" if h["note"] else ""
+            print(f"  {page_info} [{h['color']}]{note_tag}: {h['text'][:80]}")
         if len(not_found) >= max(2, len(highlights) // 4):
             if not args.page_offset:
                 print(
