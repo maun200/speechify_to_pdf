@@ -132,7 +132,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
 
             truncated = primary.endswith("...") or primary.endswith("…")
             search_text = primary.rstrip(".…").strip() if truncated else primary
-            note = re.sub(r"\s+", " ", note_raw).strip() if note_raw else None
+            note = html.unescape(re.sub(r"\s+", " ", note_raw).strip()) if note_raw else None
 
             highlights.append({
                 "page":      page_num,

@@ -58,6 +58,19 @@ def test_extract_highlight_with_note(tmp_path):
     assert result[0]["note"] == "remember this"
 
 
+def test_extract_note_html_entities(tmp_path):
+    html = (
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: Some text. Note: R&amp;D &amp; &quot;innovation&quot; . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>Some text</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["note"] == 'R&D & "innovation"'
+
+
 def test_extract_truncated_highlight(tmp_path):
     html = _make_html([{"page": 2, "color": "blue", "text": "Some long text...", "note": None}])
     f = tmp_path / "test.html"
