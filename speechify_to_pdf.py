@@ -572,7 +572,8 @@ def main():
         print(f"  Annotating: {total}/{total}")
     if args.verbose:
         print()  # blank line separator after verbose annotation output
-    print(f"Result: {done}/{len(highlights)} highlights transferred.")
+    action = "would be transferred" if args.dry_run else "transferred"
+    print(f"Result: {done}/{len(highlights)} highlights {action}.")
     if not_found:
         print(f"Not found ({len(not_found)}):")
         for h in not_found:

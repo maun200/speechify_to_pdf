@@ -154,7 +154,7 @@ PDF:   Algorithms.pdf  (412 pages)
 
   Annotating: 17/17
 
-Result: 16/17 highlights transferred.
+Result: 16/17 highlights would be transferred.
 
 Dry run — no file written. Would save to: Algorithms_highlights.pdf
 ```
