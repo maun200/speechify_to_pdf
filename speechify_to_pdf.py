@@ -46,8 +46,9 @@ DEFAULT_COLOR = (1.0, 0.93, 0.0)
 # Russian (Страница), Ukrainian (Сторінка), Czech (Strana), Polish (Strona),
 # Turkish (Sayfa), Traditional Chinese (頁), Simplified Chinese (页), Swedish (Sida),
 # Danish/Norwegian (Side), Finnish (Sivu), Hungarian (Oldal),
-# Vietnamese (Trang), Arabic (صفحة)
-_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|Sida|Side|Sivu|Oldal|Trang|페이지|ページ|[Сс]траница|[Сс]торінка|Strana|Strona|Sayfa|頁|页|صفحة)"
+# Vietnamese (Trang), Arabic (صفحة), Greek (Σελίδα), Hebrew (עמוד),
+# Indonesian/Malay (Halaman), Croatian/Serbian (Stranica)
+_PAGE_WORDS = r"(?:Page|Seite|Página|Pagina|Pagine|Sida|Side|Sivu|Oldal|Trang|Halaman|Stranica|페이지|ページ|[Сс]траница|[Сс]торінка|Strana|Strona|Sayfa|Σελίδα|頁|页|صفحة|עמוד)"
 
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
 _WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"
