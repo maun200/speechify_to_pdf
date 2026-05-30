@@ -174,7 +174,7 @@ Dry run — no file written. Would save to: Algorithms_highlights.pdf
 
 ## Limitations
 
-- **Truncated texts:** Speechify only shows the first ~80 characters of a long highlight in the sidebar. The script marks only the visible beginning — the rest of the passage remains unmarked, as the full text is not available in the saved HTML.
+- **Truncated texts:** Speechify only shows the first ~80 characters of a long highlight in the sidebar. The tool first tries to recover the full text from the page source (`aria-label` attribute); when successful, the entire highlight is annotated correctly. When only the truncated text (~80 chars) is available, it marks from the start position and estimates the extent.
 - **Image pages / scanned PDFs:** On pure image pages without an embedded text layer, no text position can be found (no OCR).
 - **Page offset:** The script searches on the indicated page ±2 pages. With larger offsets (e.g. books with long prefaces not counted by Speechify) use `--page-offset N` to shift all lookups by N pages.
 
