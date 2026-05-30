@@ -174,6 +174,20 @@ def test_guess_pdf_path_onedrive(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_icloud(tmp_path, monkeypatch):
+    icloud = tmp_path / "Library" / "Mobile Documents" / "com~apple~CloudDocs"
+    icloud.mkdir(parents=True)
+    pdf = icloud / "ICloudBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ICloudBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_case_insensitive(tmp_path):
     # stem name differs in case from HTML; extension must be lowercase (rglob limitation on Linux)
     d = tmp_path / "unique_ci_test"

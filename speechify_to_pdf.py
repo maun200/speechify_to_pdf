@@ -398,6 +398,8 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "OneDrive" / "Documents",  # Windows OneDrive
         Path.home() / "OneDrive",                # Windows OneDrive root
         Path.home() / "Dropbox",                 # Dropbox
+        Path.home() / "Library" / "Mobile Documents" / "com~apple~CloudDocs",  # iCloud Drive (macOS)
+        Path.home() / "Google Drive",            # Google Drive (legacy client)
     ]
     for d in search_dirs:
         if not d.exists():
