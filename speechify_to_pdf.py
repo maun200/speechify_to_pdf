@@ -183,15 +183,13 @@ def _detect_page_offset(located: list, current_offset: int) -> int | None:
     """
     Infer a consistent page-offset from successfully located highlights.
     Returns a suggested offset when the majority of found highlights agree on
-    a single non-zero shift and current_offset is 0; otherwise returns None.
+    a shift that differs from current_offset; otherwise returns None.
     """
-    if current_offset != 0:
-        return None
     found_offsets = [fp - (h["page"] - 1) for fp, _, h in located if fp is not None]
     if not found_offsets:
         return None
     common_offset, count = Counter(found_offsets).most_common(1)[0]
-    if common_offset != 0 and count >= max(1, len(found_offsets) // 2):
+    if common_offset != current_offset and count >= max(1, len(found_offsets) // 2):
         return common_offset
     return None
 
