@@ -51,7 +51,8 @@ DEFAULT_COLOR = (1.0, 0.93, 0.0)
 _PAGE_WORDS = r"(?:Page|Seite|Página|Pàgina|Pagina|Pagine|Sida|Side|Sivu|Oldal|Trang|Halaman|Stranica|Stran|หน้า|페이지|ページ|[Сс]траница|[Сс]торінка|Strana|Strona|Sayfa|Σελίδα|頁|页|صفحة|עמוד)"
 
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
-_WS = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"
+_WS     = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"   # one-or-more
+_WS_OPT = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)*"   # zero-or-more
 
 # Matches decimal, alphanumeric (e.g. "A-1", "B2"), or roman-numeral page numbers
 # Order matters: alphanumeric must come before roman to avoid "D" being parsed as 500
@@ -99,7 +100,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
     except UnicodeDecodeError:
         content = html_path.read_text(encoding="latin-1")
     sections = re.split(
-        rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}\s*</span>[\s\S]*?</button>)",
+        rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}{_WS_OPT}</span>[\s\S]*?</button>)",
         content, flags=re.IGNORECASE,
     )
 
