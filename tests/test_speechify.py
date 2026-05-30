@@ -503,3 +503,50 @@ def test_verbose_tip_suppressed_when_verbose_active():
         if not_found and not verbose:
             print("\nTip: run again with -v/--verbose to see per-highlight match details.")
     assert "-v/--verbose" not in out.getvalue()
+
+
+# ── _detect_page_offset ────────────────────────────────────────────────────────
+
+def _make_located(pairs):
+    """Build a located list from (found_page, html_page) pairs. None found_page = not found."""
+    return [
+        (fp, object(), {"page": hp, "color": "yellow", "text": "x", "note": None, "truncated": False})
+        for fp, hp in pairs
+    ]
+
+
+def test_detect_offset_consistent_shift():
+    # fp - (hp - 1): (20,1)→20, (21,2)→20, (22,3)→20, (23,4)→20 → offset 20
+    located = _make_located([(20, 1), (21, 2), (22, 3), (23, 4)])
+    assert stp._detect_page_offset(located, 0) == 20
+
+
+def test_detect_offset_majority_wins():
+    # 3 agree on offset 5, 1 noise at offset 0
+    located = _make_located([(5, 0), (6, 1), (7, 2), (3, 3)])
+    # html pages are 0-indexed in calc: fp - (hp - 1)
+    # (5,0) → 5 - (-1) = 6, (6,1) → 6-0=6, (7,2) → 7-1=6, (3,3) → 3-2=1
+    assert stp._detect_page_offset(located, 0) == 6
+
+
+def test_detect_offset_zero_when_no_shift():
+    located = _make_located([(0, 1), (1, 2), (2, 3)])
+    assert stp._detect_page_offset(located, 0) is None
+
+
+def test_detect_offset_skipped_when_offset_already_set():
+    located = _make_located([(20, 1), (21, 2)])
+    assert stp._detect_page_offset(located, 5) is None
+
+
+def test_detect_offset_empty_located():
+    located = _make_located([(None, 1), (None, 2)])
+    assert stp._detect_page_offset(located, 0) is None
+
+
+def test_detect_offset_no_consensus():
+    # Every highlight on a different offset — no majority
+    located = _make_located([(1, 1), (5, 2), (9, 3), (13, 4)])
+    # offsets: 1-0=1, 5-1=4, 9-2=7, 13-3=10 → all different, count=1 each
+    # max(1, 4//2) = 2; all counts are 1, so no consensus
+    assert stp._detect_page_offset(located, 0) is None

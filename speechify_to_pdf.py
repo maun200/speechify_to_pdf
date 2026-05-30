@@ -15,6 +15,7 @@ Usage:
 """
 
 import argparse
+from collections import Counter
 import html
 import os
 import re
@@ -174,6 +175,23 @@ def _collect_lines(page: fitz.Page, y_start: float, y_end: float) -> list[fitz.R
 
 def _page_bottom(page: fitz.Page) -> float:
     return page.rect.height - 30
+
+
+def _detect_page_offset(located: list, current_offset: int) -> int | None:
+    """
+    Infer a consistent page-offset from successfully located highlights.
+    Returns a suggested offset when the majority of found highlights agree on
+    a single non-zero shift and current_offset is 0; otherwise returns None.
+    """
+    if current_offset != 0:
+        return None
+    found_offsets = [fp - (h["page"] - 1) for fp, _, h in located if fp is not None]
+    if not found_offsets:
+        return None
+    common_offset, count = Counter(found_offsets).most_common(1)[0]
+    if common_offset != 0 and count >= max(1, len(found_offsets) // 2):
+        return common_offset
+    return None
 
 
 # ── Start-position search ────────────────────────────────────────────────────
@@ -611,7 +629,14 @@ def main():
             trunc_tag = " (…)" if h["truncated"] else ""
             print(f"  {page_info} [{h['color']}]{note_tag}{trunc_tag}: {h['text'][:80]}")
         if len(not_found) >= max(1, len(highlights) // 4):
-            if not args.page_offset:
+            detected = _detect_page_offset(located, args.page_offset)
+            if detected is not None:
+                print(
+                    f"\nTip: many highlights were not found. A consistent page shift of "
+                    f"{detected} was detected from the located highlights — "
+                    f"try --page-offset {detected}."
+                )
+            elif not args.page_offset:
                 print(
                     "\nTip: many highlights were not found. If your PDF has unnumbered front "
                     "matter (cover, preface, TOC) that Speechify does not count, try "
