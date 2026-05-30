@@ -236,6 +236,39 @@ def test_ws_matches_nbsp_entities():
     assert re.match(stp._WS, "&#x0A0;")
 
 
+def test_ws_matches_raw_nbsp():
+    # Python's \s does NOT match \xa0; it must be listed explicitly in the pattern.
+    assert re.match(stp._WS, "\xa0"), "raw U+00A0 not matched by _WS"
+    assert re.match(stp._WS_OPT, "\xa0"), "raw U+00A0 not matched by _WS_OPT"
+
+
+def test_extract_raw_nbsp_in_page_label(tmp_path):
+    # Some browsers embed a raw U+00A0 between the page word and number instead
+    # of using &nbsp;. The page-split regex must parse the page number correctly.
+    html = (
+        "Page\xa07</span></button>\n"
+        'aria-label="Highlight: Some text . Has context menu" '
+        'class="bg-bg-highlight-notes-yellow foo"><span>Some text</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 7
+
+
+def test_extract_unicode_ellipsis_truncation(tmp_path):
+    # Speechify can export a truncated highlight ending with U+2026 (…) rather
+    # than ASCII triple-dot (...). Both forms must be detected as truncated.
+    html = _make_html([{"page": 1, "color": "yellow", "text": "Some long text…", "note": None}])
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["truncated"] is True
+    assert not result[0]["text"].endswith("…")
+
+
 def test_parse_page_num_decimal():
     assert stp._parse_page_num("1") == 1
     assert stp._parse_page_num("42") == 42
