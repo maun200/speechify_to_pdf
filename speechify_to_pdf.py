@@ -379,11 +379,14 @@ def _iter_pdfs(d: Path, max_depth: int = 3):
                 yield Path(root) / f
 
 
+def _expected_pdf_name(html_path: Path) -> str:
+    """Return the PDF filename that corresponds to a Speechify HTML export path."""
+    name = re.sub(r"\s*[-_|–—]\s*Speechify(\s*\(\d+\))?\s*$", "", html_path.stem, flags=re.IGNORECASE).strip()
+    return name if name.lower().endswith(".pdf") else name + ".pdf"
+
+
 def guess_pdf_path(html_path: Path) -> Path | None:
-    name = html_path.stem
-    pdf_name_stem = re.sub(r"\s*[-_|–—]\s*Speechify(\s*\(\d+\))?\s*$", "", name, flags=re.IGNORECASE).strip()
-    if not pdf_name_stem.lower().endswith(".pdf"):
-        pdf_name_stem += ".pdf"
+    pdf_name_stem = _expected_pdf_name(html_path)
 
     search_dirs = [
         html_path.parent,
@@ -449,6 +452,7 @@ def main():
         if not pdf_path:
             sys.exit(
                 "Could not auto-detect PDF file.\n"
+                f"Expected to find: '{_expected_pdf_name(html_path)}'\n"
                 f"Please specify it explicitly: {parser.prog} <html> <pdf>"
             )
         if not args.quiet:
