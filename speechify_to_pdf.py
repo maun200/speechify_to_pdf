@@ -488,7 +488,10 @@ def main():
     for uc in unknown_colors:
         print(f"Warning: unknown highlight color '{uc}' — will render as yellow", file=sys.stderr)
 
-    doc = fitz.open(pdf_path)
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception as exc:
+        sys.exit(f"Error: could not open PDF '{pdf_path.name}': {exc}")
     if doc.is_encrypted:
         if not doc.authenticate(args.password or ""):
             doc.close()
