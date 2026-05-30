@@ -176,7 +176,7 @@ Dry run — no file written. Would save to: Algorithms_highlights.pdf
 
 - **Truncated texts:** Speechify only shows the first ~80 characters of a long highlight in the sidebar. The tool first tries to recover the full text from the page source (`aria-label` attribute); when successful, the entire highlight is annotated correctly. When only the truncated text (~80 chars) is available, it marks from the start position and estimates the extent.
 - **Image pages / scanned PDFs:** On pure image pages without an embedded text layer, no text position can be found (no OCR).
-- **Page offset:** The script searches on the indicated page ±2 pages. With larger offsets (e.g. books with long prefaces not counted by Speechify) use `--page-offset N` to shift all lookups by N pages.
+- **Page offset:** The script searches on the indicated page ±2 pages. With larger offsets (e.g. books with long prefaces not counted by Speechify) use `--page-offset N` to shift all lookups by N pages. When many highlights are not found, the tool automatically infers the shift from the ones it did locate and prints a suggested `--page-offset` value.
 
 ## Troubleshooting
 
@@ -185,6 +185,7 @@ Dry run — no file written. Would save to: Algorithms_highlights.pdf
 
 **Many "NOT FOUND"**
 → The HTML and PDF might be from different versions of the book. Or: the PDF contains scanned text without a text layer.
+→ If the PDF has unnumbered front matter (cover, preface, TOC) that Speechify does not count, add `--page-offset N`. The tool automatically detects a consistent shift from the highlights it did locate and prints the suggested value.
 
 **`UnicodeDecodeError` when reading the HTML file**
 → Your browser saved the page in a non-UTF-8 encoding. The script automatically falls back to `latin-1`; if you still see errors, re-save the page in your browser and ensure "UTF-8" is selected in the save dialog.
