@@ -239,6 +239,26 @@ def test_page_words_matches_catalan():
     assert re.match(stp._PAGE_WORDS, "pàgina", re.IGNORECASE)
 
 
+def test_page_words_matches_lithuanian():
+    assert re.match(stp._PAGE_WORDS, "Puslapis", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "puslapis", re.IGNORECASE)
+
+
+def test_page_words_matches_latvian():
+    assert re.match(stp._PAGE_WORDS, "Lappuse", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "lappuse", re.IGNORECASE)
+
+
+def test_page_words_matches_welsh():
+    assert re.match(stp._PAGE_WORDS, "Tudalen", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "tudalen", re.IGNORECASE)
+
+
+def test_page_words_matches_tagalog():
+    assert re.match(stp._PAGE_WORDS, "Pahina", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "pahina", re.IGNORECASE)
+
+
 # ── _WS / _PAGE_NUM / _parse_page_num ────────────────────────────────────────
 
 def test_ws_matches_nbsp_entities():

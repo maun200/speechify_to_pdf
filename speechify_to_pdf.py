@@ -42,13 +42,14 @@ DEFAULT_COLOR = (1.0, 0.93, 0.0)
 
 # Page label words across Speechify UI languages (matched case-insensitively)
 # Covers: English, French (Page), German (Seite), Spanish/Portuguese (Página),
-# Catalan (Pàgina), Italian (Pagina/Pagine), Dutch (Pagina), Korean (페이지),
+# Catalan (Pàgina), Italian/Dutch/Romanian (Pagina/Pagine), Korean (페이지),
 # Japanese (ページ), Russian/Bulgarian (Страница), Ukrainian (Сторінка), Czech/Slovak (Strana),
 # Polish (Strona), Turkish (Sayfa), Traditional Chinese (頁), Simplified Chinese (页),
 # Swedish (Sida), Danish/Norwegian (Side), Finnish (Sivu), Hungarian (Oldal),
 # Vietnamese (Trang), Arabic (صفحة), Greek (Σελίδα), Hebrew (עמוד),
-# Indonesian/Malay (Halaman), Croatian/Serbian (Stranica), Slovenian (Stran), Thai (หน้า)
-_PAGE_WORDS = r"(?:Page|Seite|Página|Pàgina|Pagina|Pagine|Sida|Side|Sivu|Oldal|Trang|Halaman|Stranica|Stran|หน้า|페이지|ページ|[Сс]траница|[Сс]торінка|Strana|Strona|Sayfa|Σελίδα|頁|页|صفحة|עמוד)"
+# Indonesian/Malay (Halaman), Croatian/Serbian (Stranica), Slovenian (Stran), Thai (หน้า),
+# Lithuanian (Puslapis), Latvian (Lappuse), Welsh (Tudalen), Tagalog/Filipino (Pahina)
+_PAGE_WORDS = r"(?:Page|Seite|Página|Pàgina|Pagina|Pagine|Puslapis|Lappuse|Tudalen|Pahina|Sida|Side|Sivu|Oldal|Trang|Halaman|Stranica|Stran|หน้า|페이지|ページ|[Сс]траница|[Сс]торінка|Strana|Strona|Sayfa|Σελίδα|頁|页|صفحة|עמוד)"
 
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
 _WS     = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"   # one-or-more
