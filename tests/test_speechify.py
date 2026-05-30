@@ -143,6 +143,17 @@ def test_guess_pdf_path_cwd(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_numbered_duplicate(tmp_path):
+    # Browsers append "(1)", "(2)" etc. when saving a page that already exists on disk.
+    pdf = tmp_path / "MyBook.pdf"
+    pdf.touch()
+    html = tmp_path / "MyBook _ Speechify (1).html"
+    html.touch()
+
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_not_found(tmp_path):
     html = tmp_path / "Ghost _ Speechify.html"
     html.touch()
