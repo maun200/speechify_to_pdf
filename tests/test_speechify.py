@@ -154,6 +154,28 @@ def test_guess_pdf_path_numbered_duplicate(tmp_path):
     assert found == pdf
 
 
+def test_guess_pdf_path_en_dash_separator(tmp_path):
+    # Speechify sometimes uses an en-dash (U+2013) instead of underscore/hyphen.
+    pdf = tmp_path / "MyBook.pdf"
+    pdf.touch()
+    html = tmp_path / "MyBook – Speechify.html"
+    html.touch()
+
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_em_dash_separator(tmp_path):
+    # Speechify sometimes uses an em-dash (U+2014) as separator.
+    pdf = tmp_path / "MyBook.pdf"
+    pdf.touch()
+    html = tmp_path / "MyBook — Speechify.html"
+    html.touch()
+
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_not_found(tmp_path):
     html = tmp_path / "Ghost _ Speechify.html"
     html.touch()
