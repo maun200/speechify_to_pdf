@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.2.0
+Version: 1.2.1
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -21,7 +21,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 
 try:
     import fitz  # PyMuPDF
@@ -536,9 +536,10 @@ def main():
             not_found.append(h)
             if args.verbose:
                 note_tag = " [+note]" if h["note"] else ""
+                trunc_tag = " (…)" if h["truncated"] else ""
                 page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
                              if args.page_offset else f"p.{h['page']}")
-                print(f"  ✗ {page_info} [{h['color']}]{note_tag} NOT FOUND: {h['text'][:60]}")
+                print(f"  ✗ {page_info} [{h['color']}]{note_tag}{trunc_tag} NOT FOUND: {h['text'][:60]}")
             continue
 
         color = COLOR_MAP.get(h["color"], DEFAULT_COLOR)
@@ -570,7 +571,8 @@ def main():
             not_found.append(h)
             if args.verbose:
                 note_tag = " [+note]" if h["note"] else ""
-                print(f"  ✗ p.{page_idx+1} [{h['color']}]{note_tag} NO RECTS: {h['text'][:60]}")
+                trunc_tag = " (…)" if h["truncated"] else ""
+                print(f"  ✗ p.{page_idx+1} [{h['color']}]{note_tag}{trunc_tag} NO RECTS: {h['text'][:60]}")
         if not args.verbose and not args.quiet and is_tty:
             print(f"\r  Annotating: {i+1}/{total}", end="", flush=True)
 
@@ -588,7 +590,8 @@ def main():
             page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
                          if args.page_offset else f"p.{h['page']}")
             note_tag = " [+note]" if h["note"] else ""
-            print(f"  {page_info} [{h['color']}]{note_tag}: {h['text'][:80]}")
+            trunc_tag = " (…)" if h["truncated"] else ""
+            print(f"  {page_info} [{h['color']}]{note_tag}{trunc_tag}: {h['text'][:80]}")
         if len(not_found) >= max(1, len(highlights) // 4):
             if not args.page_offset:
                 print(
