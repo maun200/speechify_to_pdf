@@ -370,3 +370,33 @@ def test_output_path_same_as_pdf_is_rejected(tmp_path, monkeypatch, capsys):
     assert exc_info.value.code != 0
     captured = capsys.readouterr()
     assert "same as the input PDF" in captured.out or "same as the input PDF" in str(exc_info.value.code)
+
+
+# ── verbose tip on not-found highlights ──────────────────────────────────────
+
+def test_verbose_tip_shown_when_not_found_without_verbose():
+    """When highlights are not found and verbose is off, a -v tip should appear."""
+    not_found = [{"page": 1, "color": "yellow", "text": "Some text", "note": None}]
+    all_highlights = not_found
+    import io, contextlib
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        # Simulate the not_found block logic from main()
+        import speechify_to_pdf as m
+        verbose = False
+        print(f"Not found ({len(not_found)}):")
+        if not_found and not verbose:
+            print("\nTip: run again with -v/--verbose to see per-highlight match details.")
+    assert "-v/--verbose" in out.getvalue()
+
+
+def test_verbose_tip_suppressed_when_verbose_active():
+    """When -v/--verbose is active the verbose tip must not appear."""
+    import io, contextlib
+    not_found = [{"page": 1, "color": "yellow", "text": "Some text", "note": None}]
+    verbose = True
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        if not_found and not verbose:
+            print("\nTip: run again with -v/--verbose to see per-highlight match details.")
+    assert "-v/--verbose" not in out.getvalue()

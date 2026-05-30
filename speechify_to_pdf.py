@@ -601,6 +601,8 @@ def main():
                     "Try adjusting the offset — increase it if highlights appear too early, "
                     "decrease it if they appear too late."
                 )
+    if not_found and not args.verbose:
+        print("\nTip: run again with -v/--verbose to see per-highlight match details.")
 
     if done == 0 and not args.dry_run:
         doc.close()
