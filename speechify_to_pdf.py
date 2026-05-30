@@ -635,14 +635,17 @@ def main():
         print()  # blank line separator after verbose annotation output
     action = "would be transferred" if args.dry_run else "transferred"
     print(f"Result: {done}/{len(highlights)} highlights {action}.")
+    _NOT_FOUND_LIMIT = 10
     if not_found:
         print(f"Not found ({len(not_found)}):")
-        for h in not_found:
+        for h in not_found[:_NOT_FOUND_LIMIT]:
             page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
                          if args.page_offset else f"p.{h['page']}")
             note_tag = " [+note]" if h["note"] else ""
             trunc_tag = " (…)" if h["truncated"] else ""
             print(f"  {page_info} [{h['color']}]{note_tag}{trunc_tag}: {h['text'][:80]}")
+        if len(not_found) > _NOT_FOUND_LIMIT:
+            print(f"  … and {len(not_found) - _NOT_FOUND_LIMIT} more. Run with -v for details.")
         if len(not_found) >= max(1, len(highlights) // 4):
             detected = _detect_page_offset(located, args.page_offset)
             if detected is not None:
