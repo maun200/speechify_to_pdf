@@ -402,9 +402,14 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Library" / "Mobile Documents" / "com~apple~CloudDocs",  # iCloud Drive (macOS)
         Path.home() / "Google Drive",            # Google Drive (legacy client)
     ]
+    seen: set[Path] = set()
     for d in search_dirs:
         if not d.exists():
             continue
+        resolved = d.resolve()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
         direct = d / pdf_name_stem
         if direct.is_file():
             return direct
