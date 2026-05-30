@@ -210,6 +210,20 @@ def test_guess_pdf_path_icloud(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_home_directory(tmp_path, monkeypatch):
+    # PDF lives directly in the home directory (not in any known subdirectory).
+    # The function must find it via the last-resort home-directory check.
+    pdf = tmp_path / "HomeBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere" / "deep" / "path"
+    other.mkdir(parents=True)
+    html = other / "HomeBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_case_insensitive(tmp_path):
     # stem name differs in case from HTML; extension must be lowercase (rglob limitation on Linux)
     d = tmp_path / "unique_ci_test"

@@ -439,6 +439,19 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         for candidate in _iter_pdfs(d):
             if candidate.name.lower() == pdf_name_stem.lower():
                 return candidate
+
+    # Last-resort: direct check in home directory without recursion (avoids
+    # scanning the entire home tree which could be huge).
+    home = Path.home()
+    if home.exists():
+        home_resolved = home.resolve()
+        if home_resolved not in seen:
+            direct = home / pdf_name_stem
+            if direct.is_file():
+                return direct
+            for f in home.iterdir():
+                if f.is_file() and f.name.lower() == pdf_name_stem.lower():
+                    return f
     return None
 
 
