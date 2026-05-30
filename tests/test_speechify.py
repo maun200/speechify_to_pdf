@@ -281,6 +281,34 @@ def test_page_words_matches_tagalog():
     assert re.match(stp._PAGE_WORDS, "pahina", re.IGNORECASE)
 
 
+def test_page_words_matches_azerbaijani():
+    assert re.match(stp._PAGE_WORDS, "Səhifə", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "səhifə", re.IGNORECASE)
+
+
+def test_page_words_matches_georgian():
+    assert re.match(stp._PAGE_WORDS, "გვერდი")
+
+
+def test_page_words_matches_armenian():
+    assert re.match(stp._PAGE_WORDS, "Էջ")
+
+
+def test_page_words_matches_icelandic():
+    assert re.match(stp._PAGE_WORDS, "Blaðsíða", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "blaðsíða", re.IGNORECASE)
+
+
+def test_page_words_matches_estonian():
+    assert re.match(stp._PAGE_WORDS, "Lehekülg", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "lehekülg", re.IGNORECASE)
+
+
+def test_page_words_matches_basque():
+    assert re.match(stp._PAGE_WORDS, "Orrialde", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "orrialde", re.IGNORECASE)
+
+
 # ── _WS / _PAGE_NUM / _parse_page_num ────────────────────────────────────────
 
 def test_ws_matches_nbsp_entities():
