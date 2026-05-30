@@ -389,12 +389,15 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         html_path.parent.parent,
         Path.cwd(),
         Path.home() / "Documents",
-        Path.home() / "Dokumente",      # German
-        Path.home() / "Documentos",     # Spanish / Portuguese
-        Path.home() / "Documenti",      # Italian
+        Path.home() / "Dokumente",               # German
+        Path.home() / "Documentos",              # Spanish / Portuguese
+        Path.home() / "Documenti",               # Italian
         Path.home() / "Desktop",
         Path.home() / "Downloads",
-        Path.home() / "Téléchargements", # French
+        Path.home() / "Téléchargements",         # French
+        Path.home() / "OneDrive" / "Documents",  # Windows OneDrive
+        Path.home() / "OneDrive",                # Windows OneDrive root
+        Path.home() / "Dropbox",                 # Dropbox
     ]
     for d in search_dirs:
         if not d.exists():

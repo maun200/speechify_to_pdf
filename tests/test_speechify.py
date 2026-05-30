@@ -160,6 +160,20 @@ def test_guess_pdf_path_not_found(tmp_path):
     assert stp.guess_pdf_path(html) is None
 
 
+def test_guess_pdf_path_onedrive(tmp_path, monkeypatch):
+    onedrive_docs = tmp_path / "OneDrive" / "Documents"
+    onedrive_docs.mkdir(parents=True)
+    pdf = onedrive_docs / "CloudBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "CloudBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_case_insensitive(tmp_path):
     # stem name differs in case from HTML; extension must be lowercase (rglob limitation on Linux)
     d = tmp_path / "unique_ci_test"
