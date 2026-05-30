@@ -13,7 +13,13 @@ Thanks for your interest in improving speechify-to-pdf!
 ```bash
 git clone https://github.com/maun200/speechify_to_pdf.git
 cd speechify_to_pdf
-pip install pymupdf
+pip install pymupdf pytest
+```
+
+Run the test suite before submitting a PR:
+
+```bash
+python3 -m pytest tests/ -v
 ```
 
 ## Code style
