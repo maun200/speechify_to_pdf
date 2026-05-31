@@ -683,6 +683,33 @@ def test_find_start_skip_fallback_range_4word():
     assert ns == [3, 2]
 
 
+# ── --colors filter error message ────────────────────────────────────────────
+
+def test_colors_filter_no_match_shows_available(tmp_path, capsys):
+    """When --colors finds no match, error message must list colors present in the document."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: Some text . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>Some text</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    pdf.touch()
+
+    with pytest.raises(SystemExit) as exc_info:
+        _sys.argv = ["speechify-to-pdf", str(html), str(pdf), "--colors", "purple"]
+        stp_module.main()
+
+    assert exc_info.value.code != 0
+    err_msg = str(exc_info.value.code)
+    assert "purple" in err_msg
+    assert "yellow" in err_msg  # must show what IS present
+
+
 # ── output-path safety guards ─────────────────────────────────────────────────
 
 def test_output_path_same_as_html_is_rejected(tmp_path, monkeypatch, capsys):

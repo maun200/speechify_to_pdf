@@ -554,9 +554,14 @@ def main():
         )
 
     if color_filter is not None:
+        available_colors = {h["color"] for h in highlights}
         highlights = [h for h in highlights if h["color"] in color_filter]
         if not highlights:
-            sys.exit(f"No highlights found matching color(s): {', '.join(sorted(color_filter))}")
+            available = ", ".join(sorted(available_colors)) if available_colors else "(none)"
+            sys.exit(
+                f"No highlights found matching color(s): {', '.join(sorted(color_filter))}.\n"
+                f"Colors present in this document: {available}"
+            )
         if not args.quiet:
             print(f"       (filtered to: {', '.join(sorted(color_filter))})")
 
