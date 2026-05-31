@@ -518,10 +518,11 @@ def main():
             f"Please choose a different output path."
         )
 
-    if not output_path.parent.exists():
-        sys.exit(f"Error: output directory does not exist: {output_path.parent}")
-    if not os.access(output_path.parent, os.W_OK):
-        sys.exit(f"Error: output directory is not writable: {output_path.parent}")
+    if not args.dry_run:
+        if not output_path.parent.exists():
+            sys.exit(f"Error: output directory does not exist: {output_path.parent}")
+        if not os.access(output_path.parent, os.W_OK):
+            sys.exit(f"Error: output directory is not writable: {output_path.parent}")
 
     color_filter: set[str] | None = None
     if args.colors:

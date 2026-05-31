@@ -669,6 +669,33 @@ def test_output_path_same_as_pdf_is_rejected(tmp_path, monkeypatch, capsys):
     assert "same as the input PDF" in captured.out or "same as the input PDF" in str(exc_info.value.code)
 
 
+# ── dry-run output-directory check ───────────────────────────────────────────
+
+def test_dry_run_skips_output_dir_writability_check(tmp_path, capsys):
+    """--dry-run must not abort on a nonexistent output directory."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text("<html></html>", encoding="utf-8")  # no highlights
+    pdf = tmp_path / "Book.pdf"
+    pdf.touch()
+    nonexistent_dir = tmp_path / "does_not_exist"
+
+    with pytest.raises(SystemExit) as exc_info:
+        _sys.argv = [
+            "speechify-to-pdf", str(html), str(pdf),
+            "--dry-run",
+            "-o", str(nonexistent_dir / "output.pdf"),
+        ]
+        stp_module.main()
+
+    # Must fail on "no highlights", NOT on "output directory does not exist".
+    err_msg = str(exc_info.value.code)
+    assert "No highlights found" in err_msg
+    assert "output directory does not exist" not in err_msg
+
+
 # ── verbose tip on not-found highlights ──────────────────────────────────────
 
 def test_verbose_tip_shown_when_not_found_without_verbose():
