@@ -832,6 +832,37 @@ def test_dry_run_skips_output_dir_writability_check(tmp_path, capsys):
     assert "output directory does not exist" not in err_msg
 
 
+def test_dry_run_warns_when_output_dir_missing(tmp_path, capsys, monkeypatch):
+    """--dry-run should warn on stderr when the output directory doesn't exist."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: hello world . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>hello world</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 100), "hello world")
+    doc.save(str(pdf))
+    doc.close()
+
+    nonexistent_dir = tmp_path / "does_not_exist"
+    _sys.argv = [
+        "speechify-to-pdf", str(html), str(pdf),
+        "--dry-run",
+        "-o", str(nonexistent_dir / "output.pdf"),
+    ]
+    stp_module.main()
+    captured = capsys.readouterr()
+    assert "output directory does not exist" in captured.err
+
+
 # ── verbose tip on not-found highlights ──────────────────────────────────────
 
 def test_verbose_tip_shown_when_not_found_without_verbose():

@@ -723,6 +723,8 @@ def main():
     if args.dry_run:
         doc.close()
         exists_note = " (would overwrite existing file)" if output_path.exists() else ""
+        if not output_path.parent.exists():
+            print(f"Warning: output directory does not exist: {output_path.parent}", file=sys.stderr)
         if not args.quiet:
             print(f"\nDry run — no file written. Would save to: {output_path}{exists_note}")
     else:
