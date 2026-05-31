@@ -337,6 +337,62 @@ def test_page_words_matches_basque():
     assert re.match(stp._PAGE_WORDS, "orrialde", re.IGNORECASE)
 
 
+# ── extract_highlights with non-English page labels ───────────────────────────
+
+def test_extract_highlights_german_page_label(tmp_path):
+    html = (
+        '<span>Seite 5</span></button>\n'
+        'aria-label="Highlight: Deutsches Beispiel . Has context menu" '
+        'class="bg-bg-highlight-notes-yellow foo"><span>Deutsches Beispiel</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 5
+    assert result[0]["text"] == "Deutsches Beispiel"
+
+
+def test_extract_highlights_french_page_label(tmp_path):
+    html = (
+        '<span>Page 12</span></button>\n'
+        'aria-label="Highlight: Texte français . Has context menu" '
+        'class="bg-bg-highlight-notes-pink foo"><span>Texte français</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 12
+    assert result[0]["color"] == "pink"
+
+
+def test_extract_highlights_spanish_page_label(tmp_path):
+    html = (
+        '<span>Página 7</span></button>\n'
+        'aria-label="Highlight: Texto en español . Has context menu" '
+        'class="bg-bg-highlight-notes-blue foo"><span>Texto en español</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 7
+
+
+def test_extract_highlights_korean_page_label(tmp_path):
+    html = (
+        '<span>페이지 3</span></button>\n'
+        'aria-label="Highlight: Korean text . Has context menu" '
+        'class="bg-bg-highlight-notes-green foo"><span>Korean text</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 3
+
+
 # ── _WS / _PAGE_NUM / _parse_page_num ────────────────────────────────────────
 
 def test_ws_matches_nbsp_entities():
