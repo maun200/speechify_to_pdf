@@ -337,6 +337,19 @@ def test_page_words_matches_basque():
     assert re.match(stp._PAGE_WORDS, "orrialde", re.IGNORECASE)
 
 
+def test_page_words_matches_persian():
+    assert re.match(stp._PAGE_WORDS, "صفحه")
+
+
+def test_page_words_matches_hindi():
+    assert re.match(stp._PAGE_WORDS, "पृष्ठ")
+
+
+def test_page_words_matches_swahili():
+    assert re.match(stp._PAGE_WORDS, "Ukurasa", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "ukurasa", re.IGNORECASE)
+
+
 # ── extract_highlights with non-English page labels ───────────────────────────
 
 def test_extract_highlights_german_page_label(tmp_path):
@@ -391,6 +404,32 @@ def test_extract_highlights_korean_page_label(tmp_path):
     result = stp.extract_highlights(f)
     assert len(result) == 1
     assert result[0]["page"] == 3
+
+
+def test_extract_highlights_persian_page_label(tmp_path):
+    html = (
+        '<span>صفحه 9</span></button>\n'
+        'aria-label="Highlight: Persian text . Has context menu" '
+        'class="bg-bg-highlight-notes-yellow foo"><span>Persian text</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 9
+
+
+def test_extract_highlights_hindi_page_label(tmp_path):
+    html = (
+        '<span>पृष्ठ 4</span></button>\n'
+        'aria-label="Highlight: Hindi text . Has context menu" '
+        'class="bg-bg-highlight-notes-blue foo"><span>Hindi text</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 4
 
 
 # ── _WS / _PAGE_NUM / _parse_page_num ────────────────────────────────────────
