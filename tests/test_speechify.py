@@ -576,9 +576,12 @@ def test_detect_offset_zero_when_no_shift():
     assert stp._detect_page_offset(located, 0) is None
 
 
-def test_detect_offset_skipped_when_offset_already_set():
+def test_detect_offset_returns_new_suggestion_when_different_from_current():
+    # If the detected consistent offset (20) differs from the currently set offset (5),
+    # the function should return the detected offset so the user gets a specific
+    # suggestion ("try --page-offset 20") rather than generic advice.
     located = _make_located([(20, 1), (21, 2)])
-    assert stp._detect_page_offset(located, 5) is None
+    assert stp._detect_page_offset(located, 5) == 20
 
 
 def test_detect_offset_empty_located():
