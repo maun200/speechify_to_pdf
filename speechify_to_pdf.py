@@ -431,6 +431,7 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Dropbox",                 # Dropbox
         Path.home() / "Library" / "Mobile Documents" / "com~apple~CloudDocs",  # iCloud Drive (macOS)
         Path.home() / "Library" / "Mobile Documents" / "com~apple~CloudDocs" / "Documents",  # iCloud Documents sync (macOS)
+        Path.home() / "iCloudDrive",                                          # iCloud Drive (Windows, iCloud for Windows 12+)
         Path.home() / "Google Drive",            # Google Drive (legacy client)
         # Google Drive for Desktop (macOS 2021+): ~/Library/CloudStorage/GoogleDrive-{email}/My Drive
         *([p / "My Drive"

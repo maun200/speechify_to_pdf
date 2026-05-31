@@ -306,6 +306,20 @@ def test_guess_pdf_path_google_drive_for_desktop(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_windows_icloud(tmp_path, monkeypatch):
+    icloud_win = tmp_path / "iCloudDrive"
+    icloud_win.mkdir()
+    pdf = icloud_win / "WinICloudBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "WinICloudBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_home_directory(tmp_path, monkeypatch):
     # PDF lives directly in the home directory (not in any known subdirectory).
     # The function must find it via the last-resort home-directory check.
