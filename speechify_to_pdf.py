@@ -58,9 +58,11 @@ _PAGE_WORDS = r"(?:Page|Seite|Página|Pàgina|Pagina|Pagine|Puslapis|Lappuse|Tud
 _WS     = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"   # one-or-more
 _WS_OPT = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)*"   # zero-or-more
 
-# Matches decimal, alphanumeric (e.g. "A-1", "B2"), or roman-numeral page numbers
-# Order matters: alphanumeric must come before roman to avoid "D" being parsed as 500
-_PAGE_NUM_PAT = r"\d+|[A-Za-z]-?\d+|[ivxlcdmIVXLCDM]+"
+# Matches decimal, alphanumeric (e.g. "A-1", "B2"), or roman-numeral page numbers.
+# [0-9] instead of \d: Python's \d matches Unicode decimal digits (Arabic-Indic,
+# Devanagari, etc.) which isdigit() accepts but int() cannot parse, causing a crash.
+# Order matters: alphanumeric must come before roman to avoid "D" being parsed as 500.
+_PAGE_NUM_PAT = r"[0-9]+|[A-Za-z]-?[0-9]+|[ivxlcdmIVXLCDM]+"
 _PAGE_NUM_NC  = r"(?:" + _PAGE_NUM_PAT + ")"     # non-capturing group (for splitting)
 _PAGE_NUM     = r"("   + _PAGE_NUM_PAT + ")"     # capturing group (for match.group(1))
 

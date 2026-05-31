@@ -477,6 +477,16 @@ def test_extract_roman_numeral_page(tmp_path):
     assert result[0]["page"] == 14
 
 
+def test_page_num_pat_rejects_unicode_digits():
+    # Python's \d matches Unicode decimal digits (e.g. Arabic-Indic "٣"), but
+    # int() cannot parse them, causing a ValueError.  _PAGE_NUM_PAT must use
+    # [0-9] so those characters are never captured as page numbers.
+    arabic_indic_digit = "٣"  # U+0663, isdigit()=True but int() raises ValueError
+    assert not re.fullmatch(stp._PAGE_NUM_PAT, arabic_indic_digit), (
+        "_PAGE_NUM_PAT must not match non-ASCII decimal digits"
+    )
+
+
 def test_extract_nbsp_entity_in_page_label(tmp_path):
     html = '<span>Page&#160;7</span></button>\n' \
            'aria-label="Highlight: Some text . Has context menu" class="bg-bg-highlight-notes-yellow foo"><span>Some text</span>'
