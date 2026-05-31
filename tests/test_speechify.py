@@ -182,6 +182,20 @@ def test_guess_pdf_path_not_found(tmp_path):
     assert stp.guess_pdf_path(html) is None
 
 
+def test_guess_pdf_path_xdg_documents_dir(tmp_path, monkeypatch):
+    xdg_docs = tmp_path / "custom_docs"
+    xdg_docs.mkdir()
+    pdf = xdg_docs / "XdgBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "XdgBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setenv("XDG_DOCUMENTS_DIR", str(xdg_docs))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_onedrive(tmp_path, monkeypatch):
     onedrive_docs = tmp_path / "OneDrive" / "Documents"
     onedrive_docs.mkdir(parents=True)

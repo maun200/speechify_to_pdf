@@ -406,10 +406,12 @@ def _expected_pdf_name(html_path: Path) -> str:
 def guess_pdf_path(html_path: Path) -> Path | None:
     pdf_name_stem = _expected_pdf_name(html_path)
 
+    xdg_docs = os.environ.get("XDG_DOCUMENTS_DIR")
     search_dirs = [
         html_path.parent,
         html_path.parent.parent,
         Path.cwd(),
+        *([ Path(xdg_docs).expanduser() ] if xdg_docs else []),
         Path.home() / "Documents",
         Path.home() / "Dokumente",               # German
         Path.home() / "Documentos",              # Spanish / Portuguese
