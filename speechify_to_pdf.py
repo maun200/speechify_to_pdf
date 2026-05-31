@@ -675,7 +675,7 @@ def main():
             trunc_tag = " (…)" if h["truncated"] else ""
             print(f"  {page_info} [{h['color']}]{note_tag}{trunc_tag}: {h['text'][:80]}")
         if len(not_found) > _NOT_FOUND_LIMIT:
-            print(f"  … and {len(not_found) - _NOT_FOUND_LIMIT} more. Run with -v for details.")
+            print(f"  … and {len(not_found) - _NOT_FOUND_LIMIT} more.")
         if len(not_found) >= max(1, len(highlights) // 4):
             detected = _detect_page_offset(located, args.page_offset)
             if detected is not None:
