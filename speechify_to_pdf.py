@@ -632,7 +632,9 @@ def main():
     if args.verbose:
         print()  # blank line separator after verbose annotation output
     action = "would be transferred" if args.dry_run else "transferred"
-    print(f"Result: {done}/{len(highlights)} highlights {action}.")
+    total = len(highlights)
+    s = "" if total == 1 else "s"
+    print(f"Result: {done}/{total} highlight{s} {action}.")
     _NOT_FOUND_LIMIT = 10
     if not_found:
         print(f"Not found ({len(not_found)}):")
