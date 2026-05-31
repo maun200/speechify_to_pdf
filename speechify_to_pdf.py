@@ -532,7 +532,14 @@ def main():
             "  • Is the correct HTML file specified?"
         )
     if not args.quiet:
-        print(f"       {len(highlights)} highlights found")
+        color_counts = Counter(h["color"] for h in highlights)
+        if len(color_counts) > 1:
+            breakdown = ", ".join(
+                f"{n} {c}" for c, n in sorted(color_counts.items(), key=lambda x: -x[1])
+            )
+            print(f"       {len(highlights)} highlights found ({breakdown})")
+        else:
+            print(f"       {len(highlights)} highlights found")
 
     unknown_colors = sorted({h["color"] for h in highlights if h["color"] not in COLOR_MAP})
     for uc in unknown_colors:
