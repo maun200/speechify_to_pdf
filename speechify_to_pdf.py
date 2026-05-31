@@ -392,8 +392,7 @@ def _iter_pdfs(d: Path, max_depth: int = 3):
     """Yield .pdf paths under d, stopping recursion at max_depth to avoid hangs."""
     for root, dirs, files in os.walk(d):
         depth = len(Path(root).relative_to(d).parts)
-        if depth >= max_depth:
-            dirs[:] = []
+        dirs[:] = [] if depth >= max_depth else [s for s in dirs if not s.startswith('.')]
         for f in files:
             if f.lower().endswith(".pdf"):
                 yield Path(root) / f

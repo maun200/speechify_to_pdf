@@ -306,6 +306,19 @@ def test_guess_pdf_path_case_insensitive(tmp_path):
     assert found.name.lower() == "mybook.pdf"
 
 
+def test_iter_pdfs_skips_hidden_dirs(tmp_path):
+    hidden = tmp_path / ".hidden"
+    hidden.mkdir()
+    (hidden / "secret.pdf").write_bytes(b"")
+    visible = tmp_path / "docs"
+    visible.mkdir()
+    (visible / "book.pdf").write_bytes(b"")
+    results = list(stp._iter_pdfs(tmp_path))
+    names = [p.name for p in results]
+    assert "book.pdf" in names
+    assert "secret.pdf" not in names
+
+
 # ── COLOR_MAP ─────────────────────────────────────────────────────────────────
 
 def test_color_map_values_in_range():
