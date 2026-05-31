@@ -105,6 +105,46 @@ def test_extract_empty_html(tmp_path):
     assert result == []
 
 
+# ── _expected_pdf_name ────────────────────────────────────────────────────────
+
+def test_expected_pdf_name_underscore_separator():
+    assert stp._expected_pdf_name(Path("MyBook _ Speechify.html")) == "MyBook.pdf"
+
+
+def test_expected_pdf_name_hyphen_separator():
+    assert stp._expected_pdf_name(Path("Research Paper - Speechify.html")) == "Research Paper.pdf"
+
+
+def test_expected_pdf_name_pipe_separator():
+    assert stp._expected_pdf_name(Path("MyBook | Speechify.html")) == "MyBook.pdf"
+
+
+def test_expected_pdf_name_en_dash_separator():
+    assert stp._expected_pdf_name(Path("MyBook – Speechify.html")) == "MyBook.pdf"
+
+
+def test_expected_pdf_name_em_dash_separator():
+    assert stp._expected_pdf_name(Path("MyBook — Speechify.html")) == "MyBook.pdf"
+
+
+def test_expected_pdf_name_numbered_duplicate():
+    assert stp._expected_pdf_name(Path("MyBook _ Speechify (2).html")) == "MyBook.pdf"
+
+
+def test_expected_pdf_name_stem_already_ends_in_pdf():
+    # Browser saves "My Book.pdf" document as "My Book.pdf _ Speechify.html"
+    assert stp._expected_pdf_name(Path("My Book.pdf _ Speechify.html")) == "My Book.pdf"
+
+
+def test_expected_pdf_name_case_insensitive():
+    assert stp._expected_pdf_name(Path("MyBook - SPEECHIFY.html")) == "MyBook.pdf"
+
+
+def test_expected_pdf_name_speechify_in_title():
+    # "Speechify" appears inside the title — only the trailing separator is stripped
+    assert stp._expected_pdf_name(Path("Speechify Hacks - Speechify.html")) == "Speechify Hacks.pdf"
+
+
 # ── guess_pdf_path ────────────────────────────────────────────────────────────
 
 def test_guess_pdf_path_sibling(tmp_path):
@@ -218,6 +258,20 @@ def test_guess_pdf_path_icloud(tmp_path, monkeypatch):
     other = tmp_path / "elsewhere"
     other.mkdir()
     html = other / "ICloudBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_google_drive_for_desktop(tmp_path, monkeypatch):
+    gdrive = tmp_path / "Library" / "CloudStorage" / "GoogleDrive-user@gmail.com" / "My Drive"
+    gdrive.mkdir(parents=True)
+    pdf = gdrive / "GDriveBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "GDriveBook _ Speechify.html"
     html.touch()
     monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
     found = stp.guess_pdf_path(html)
