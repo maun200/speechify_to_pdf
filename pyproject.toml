@@ -34,6 +34,7 @@ classifiers = [
 Homepage = "https://github.com/maun200/speechify_to_pdf"
 Repository = "https://github.com/maun200/speechify_to_pdf"
 "Bug Tracker" = "https://github.com/maun200/speechify_to_pdf/issues"
+Funding = "https://www.paypal.com/donate/?business=m.gruda%40web.de&currency_code=EUR"
 
 [project.scripts]
 speechify-to-pdf = "speechify_to_pdf:main"
