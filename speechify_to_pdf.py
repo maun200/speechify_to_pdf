@@ -68,7 +68,7 @@ _PAGE_NUM     = r"("   + _PAGE_NUM_PAT + ")"     # capturing group (for match.gr
 _MAX_SPAN_PAGES = 8
 
 _ROMAN_MAP = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
-_TRAILING_PUNCT = ".,;:!?)]}'" + "’”"
+_TRAILING_PUNCT = ".,;:!?)]}'\"" + "’”"
 
 
 def _parse_page_num(s: str) -> int:
