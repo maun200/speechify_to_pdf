@@ -473,6 +473,9 @@ def main():
     parser.add_argument("--password", metavar="PASSWORD", help="Password for encrypted/password-protected PDFs")
     parser.add_argument("--page-offset", type=int, default=0, metavar="N",
                         help="Shift all page lookups by N pages (e.g. 20 if the PDF has a 20-page preface not counted by Speechify)")
+    parser.add_argument("--colors", metavar="COLOR[,COLOR...]",
+                        help="Only transfer highlights of the specified color(s), comma-separated "
+                             "(e.g. --colors yellow,pink). Valid colors: " + ", ".join(sorted(COLOR_MAP)))
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
 
@@ -520,6 +523,13 @@ def main():
     if not os.access(output_path.parent, os.W_OK):
         sys.exit(f"Error: output directory is not writable: {output_path.parent}")
 
+    color_filter: set[str] | None = None
+    if args.colors:
+        color_filter = {c.strip().lower() for c in args.colors.split(",")}
+        invalid = color_filter - set(COLOR_MAP)
+        if invalid:
+            sys.exit(f"Error: unknown color(s): {', '.join(sorted(invalid))}. Valid colors: {', '.join(sorted(COLOR_MAP))}")
+
     if not args.quiet:
         print(f"HTML:  {html_path.name}")
     highlights = extract_highlights(html_path)
@@ -531,6 +541,14 @@ def main():
             "  • Did you save as 'Webpage, Complete' (not 'HTML only')?\n"
             "  • Is the correct HTML file specified?"
         )
+
+    if color_filter is not None:
+        highlights = [h for h in highlights if h["color"] in color_filter]
+        if not highlights:
+            sys.exit(f"No highlights found matching color(s): {', '.join(sorted(color_filter))}")
+        if not args.quiet:
+            print(f"       (filtered to: {', '.join(sorted(color_filter))})")
+
     if not args.quiet:
         color_counts = Counter(h["color"] for h in highlights)
         if len(color_counts) > 1:

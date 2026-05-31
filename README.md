@@ -101,6 +101,12 @@ python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --password "m
 python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --page-offset 20
 ```
 
+**Transfer only specific highlight colors:**
+```bash
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --colors yellow
+python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --colors yellow,pink
+```
+
 **Check the version:**
 ```bash
 python3 speechify_to_pdf.py --version
