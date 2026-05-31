@@ -426,6 +426,11 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Dokument",                # Swedish
         Path.home() / "Dokumenter",              # Danish / Norwegian
         Path.home() / "Документы",               # Russian / Bulgarian
+        Path.home() / "Документи",               # Ukrainian
+        Path.home() / "Belgeler",                # Turkish
+        Path.home() / "Asiakirjat",              # Finnish
+        Path.home() / "Dokumentumok",            # Hungarian
+        Path.home() / "Έγγραφα",                 # Greek
         Path.home() / "Desktop",
         Path.home() / "Downloads",
         Path.home() / "Téléchargements",         # French
