@@ -367,6 +367,42 @@ def test_extract_unicode_ellipsis_truncation(tmp_path):
     assert not result[0]["text"].endswith("…")
 
 
+def test_extract_aria_label_preferred_when_longer(tmp_path):
+    # The aria-label attribute sometimes carries the full highlight text while
+    # the visible <span> is truncated for display (~80 chars). When aria-label
+    # is longer, extract_highlights must prefer it so the annotation covers the
+    # complete highlighted passage rather than the truncated display text.
+    full_text = "This is the full highlight text that is longer than what the span shows"
+    short_span = "This is the full highlight text that is…"
+    html = (
+        '<span>Page 2</span></button>\n'
+        f'aria-label="Highlight: {full_text} . Has context menu"'
+        f' class="bg-bg-highlight-notes-blue foo"><span>{short_span}</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["text"] == full_text
+    assert result[0]["truncated"] is False
+
+
+def test_extract_span_used_when_aria_label_not_longer(tmp_path):
+    # When the visible span is as long as (or longer than) the aria-label,
+    # the span text must be used as the primary source.
+    text = "Short highlight"
+    html = (
+        '<span>Page 1</span></button>\n'
+        f'aria-label="Highlight: {text} . Has context menu"'
+        f' class="bg-bg-highlight-notes-yellow foo"><span>{text} with extra words</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["text"] == text + " with extra words"
+
+
 def test_parse_page_num_decimal():
     assert stp._parse_page_num("1") == 1
     assert stp._parse_page_num("42") == 42
