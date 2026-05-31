@@ -320,6 +320,48 @@ def test_guess_pdf_path_windows_icloud(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_swedish_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "Dokument"
+    docs.mkdir()
+    pdf = docs / "SwedishBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "SwedishBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_danish_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "Dokumenter"
+    docs.mkdir()
+    pdf = docs / "DanishBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "DanishBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_russian_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "Документы"
+    docs.mkdir()
+    pdf = docs / "RussianBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "RussianBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_home_directory(tmp_path, monkeypatch):
     # PDF lives directly in the home directory (not in any known subdirectory).
     # The function must find it via the last-resort home-directory check.
