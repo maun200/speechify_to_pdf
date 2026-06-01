@@ -713,6 +713,26 @@ def test_page_words_matches_swahili():
     assert re.match(stp._PAGE_WORDS, "ukurasa", re.IGNORECASE)
 
 
+def test_page_words_matches_czech_slovak():
+    assert re.match(stp._PAGE_WORDS, "Strana", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "strana", re.IGNORECASE)
+
+
+def test_page_words_matches_polish():
+    assert re.match(stp._PAGE_WORDS, "Strona", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "strona", re.IGNORECASE)
+
+
+def test_page_words_matches_croatian_serbian():
+    assert re.match(stp._PAGE_WORDS, "Stranica", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "stranica", re.IGNORECASE)
+
+
+def test_page_words_matches_slovenian():
+    assert re.match(stp._PAGE_WORDS, "Stran", re.IGNORECASE)
+    assert re.match(stp._PAGE_WORDS, "stran", re.IGNORECASE)
+
+
 # ── extract_highlights with non-English page labels ───────────────────────────
 
 def test_extract_highlights_german_page_label(tmp_path):

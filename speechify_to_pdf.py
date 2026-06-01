@@ -52,7 +52,7 @@ DEFAULT_COLOR = (1.0, 0.93, 0.0)
 # Thai (หน้า), Lithuanian (Puslapis), Latvian (Lappuse), Welsh (Tudalen),
 # Tagalog/Filipino (Pahina), Azerbaijani (Səhifə), Georgian (გვერდი), Armenian (Էջ),
 # Icelandic (Blaðsíða), Estonian (Lehekülg), Basque (Orrialde), Swahili (Ukurasa)
-_PAGE_WORDS = r"(?:Page|Seite|Página|Pàgina|Pagina|Pagine|Puslapis|Lappuse|Tudalen|Pahina|Sida|Side|Sivu|Oldal|Trang|Halaman|Stranica|Stran|Ukurasa|หน้า|페이지|ページ|[Сс]траница|[Сс]торінка|Strana|Strona|Sayfa|Σελίδα|頁|页|صفحة|صفحه|पृष्ठ|עמוד|Səhifə|გვერდი|Էջ|Blaðsíða|Lehekülg|Orrialde)"
+_PAGE_WORDS = r"(?:Page|Seite|Página|Pàgina|Pagina|Pagine|Puslapis|Lappuse|Tudalen|Pahina|Sida|Side|Sivu|Oldal|Trang|Halaman|Stranica|Strana|Strona|Stran|Ukurasa|หน้า|페이지|ページ|[Сс]траница|[Сс]торінка|Sayfa|Σελίδα|頁|页|صفحة|صفحه|पृष्ठ|עמוד|Səhifə|გვერდი|Էջ|Blaðsíða|Lehekülg|Orrialde)"
 
 # Matches whitespace (incl. U+00A0) or any NBSP HTML entity in raw HTML
 _WS     = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"   # one-or-more
