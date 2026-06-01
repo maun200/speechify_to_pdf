@@ -104,7 +104,13 @@ def extract_highlights(html_path: Path) -> list[dict]:
     try:
         content = html_path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError:
-        content = html_path.read_text(encoding="latin-1")
+        try:
+            # cp1252 decodes Windows-specific characters (smart quotes, em dashes,
+            # euro sign) in the 0x80-0x9F range that latin-1 would render as
+            # control characters.
+            content = html_path.read_text(encoding="cp1252")
+        except UnicodeDecodeError:
+            content = html_path.read_text(encoding="latin-1")
     sections = re.split(
         rf"(?={_PAGE_WORDS}{_WS}{_PAGE_NUM_NC}{_WS_OPT}</span>[\s\S]*?</button>)",
         content, flags=re.IGNORECASE,

@@ -105,6 +105,22 @@ def test_extract_empty_html(tmp_path):
     assert result == []
 
 
+def test_extract_cp1252_encoding(tmp_path):
+    # Files saved by Windows browsers in cp1252 should decode correctly.
+    # 0x93/0x94 are left/right double quotes in cp1252 (control chars in latin-1).
+    html = (
+        b'<span>Page 1</span></button>\n'
+        b'aria-label="Highlight: \x93Smart quotes\x94 in title . Has context menu"'
+        b' class="bg-bg-highlight-notes-yellow foo">'
+        b'<span>\x93Smart quotes\x94 in title</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_bytes(html)
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert "“" in result[0]["text"] or "”" in result[0]["text"]
+
+
 # ── _expected_pdf_name ────────────────────────────────────────────────────────
 
 def test_expected_pdf_name_underscore_separator():
