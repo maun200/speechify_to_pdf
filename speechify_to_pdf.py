@@ -431,6 +431,11 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Asiakirjat",              # Finnish
         Path.home() / "Dokumentumok",            # Hungarian
         Path.home() / "Έγγραφα",                 # Greek
+        Path.home() / "문서",                    # Korean
+        Path.home() / "書類",                    # Japanese (macOS)
+        Path.home() / "ドキュメント",             # Japanese (Windows)
+        Path.home() / "文件",                    # Traditional Chinese
+        Path.home() / "文档",                    # Simplified Chinese
         Path.home() / "Desktop",
         Path.home() / "Schreibtisch",            # German
         Path.home() / "Bureau",                  # French

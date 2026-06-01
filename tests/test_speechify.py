@@ -447,6 +447,76 @@ def test_guess_pdf_path_greek_documents(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_korean_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "문서"
+    docs.mkdir()
+    pdf = docs / "KoreanBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "KoreanBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_japanese_documents_macos(tmp_path, monkeypatch):
+    docs = tmp_path / "書類"
+    docs.mkdir()
+    pdf = docs / "JapaneseBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "JapaneseBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_japanese_documents_windows(tmp_path, monkeypatch):
+    docs = tmp_path / "ドキュメント"
+    docs.mkdir()
+    pdf = docs / "JapaneseBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "JapaneseBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_traditional_chinese_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "文件"
+    docs.mkdir()
+    pdf = docs / "ChineseBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ChineseBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_simplified_chinese_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "文档"
+    docs.mkdir()
+    pdf = docs / "ChineseBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ChineseBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_home_directory(tmp_path, monkeypatch):
     # PDF lives directly in the home directory (not in any known subdirectory).
     # The function must find it via the last-resort home-directory check.
