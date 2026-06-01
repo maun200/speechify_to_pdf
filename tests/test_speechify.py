@@ -488,6 +488,48 @@ def test_iter_pdfs_skips_hidden_dirs(tmp_path):
     assert "secret.pdf" not in names
 
 
+def test_guess_pdf_path_dropbox(tmp_path, monkeypatch):
+    dropbox = tmp_path / "Dropbox"
+    dropbox.mkdir()
+    pdf = dropbox / "DropboxBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "DropboxBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_dropbox_subdirectory(tmp_path, monkeypatch):
+    dropbox = tmp_path / "Dropbox" / "Books"
+    dropbox.mkdir(parents=True)
+    pdf = dropbox / "DropboxSubBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "DropboxSubBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_google_drive_legacy(tmp_path, monkeypatch):
+    gdrive = tmp_path / "Google Drive"
+    gdrive.mkdir()
+    pdf = gdrive / "LegacyGDriveBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "LegacyGDriveBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 # ── COLOR_MAP ─────────────────────────────────────────────────────────────────
 
 def test_color_map_values_in_range():
