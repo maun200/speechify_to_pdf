@@ -432,6 +432,15 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Dokumentumok",            # Hungarian
         Path.home() / "Έγγραφα",                 # Greek
         Path.home() / "Desktop",
+        Path.home() / "Schreibtisch",            # German
+        Path.home() / "Bureau",                  # French
+        Path.home() / "Escritorio",              # Spanish
+        Path.home() / "Scrivania",               # Italian
+        Path.home() / "Bureaublad",              # Dutch
+        Path.home() / "Skrivbord",               # Swedish
+        Path.home() / "Skrivebord",              # Danish / Norwegian
+        Path.home() / "Pulpit",                  # Polish
+        Path.home() / "Рабочий стол",            # Russian / Bulgarian
         Path.home() / "Downloads",
         Path.home() / "Téléchargements",         # French
         Path.home() / "OneDrive" / "Documents",  # Windows OneDrive
