@@ -446,8 +446,16 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Skrivebord",              # Danish / Norwegian
         Path.home() / "Pulpit",                  # Polish
         Path.home() / "Рабочий стол",            # Russian / Bulgarian
+        Path.home() / "桌面",                    # Chinese (Simplified & Traditional, macOS/Windows)
+        Path.home() / "デスクトップ",             # Japanese (macOS/Windows)
+        Path.home() / "바탕화면",                # Korean (Windows)
+        Path.home() / "바탕 화면",               # Korean (macOS)
         Path.home() / "Downloads",
         Path.home() / "Téléchargements",         # French
+        Path.home() / "下载",                    # Simplified Chinese
+        Path.home() / "下載",                    # Traditional Chinese
+        Path.home() / "ダウンロード",             # Japanese
+        Path.home() / "다운로드",                # Korean
         Path.home() / "OneDrive" / "Documents",  # Windows OneDrive
         Path.home() / "OneDrive",                # Windows OneDrive root
         Path.home() / "Dropbox",                 # Dropbox
