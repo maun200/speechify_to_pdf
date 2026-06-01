@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.2.1
+Version: 1.2.2
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -22,7 +22,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 
 try:
     import fitz  # PyMuPDF
@@ -659,6 +659,8 @@ def main():
         print()  # newline after \r-based progress
     elif not args.quiet:
         print(f"  Locating: {total}/{total}")
+    if not args.quiet:
+        print()  # blank separator before annotating output
 
     # ── Pass 2: annotate ─────────────────────────────────────────────────────
     done, not_found = 0, []
@@ -712,8 +714,8 @@ def main():
         print()  # newline after \r-based progress
     elif not args.verbose and not args.quiet:
         print(f"  Annotating: {total}/{total}")
-    if args.verbose:
-        print()  # blank line separator after verbose annotation output
+    if not args.quiet:
+        print()  # blank line separator before Result
     action = "would be transferred" if args.dry_run else "transferred"
     total = len(highlights)
     s = "" if total == 1 else "s"
