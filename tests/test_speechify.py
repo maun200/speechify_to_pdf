@@ -1046,6 +1046,42 @@ def test_parse_page_num_alphanumeric():
     assert stp._parse_page_num("C-10") == 10
 
 
+def test_parse_page_num_double_letter_prefix():
+    # Double-letter appendix labels: "AA-1", "AB5", "CD.10"
+    assert stp._parse_page_num("AA-1") == 1
+    assert stp._parse_page_num("AB5") == 5
+    assert stp._parse_page_num("CD-10") == 10
+
+
+def test_parse_page_num_period_separator():
+    # Period separator: "A.10", "B.5" (used by some European/technical publishers)
+    assert stp._parse_page_num("A.10") == 10
+    assert stp._parse_page_num("B.5") == 5
+
+
+def test_extract_double_letter_appendix_page(tmp_path):
+    html = '<span>Page AA-3</span></button>\n' \
+           'aria-label="Highlight: Appendix text . Has context menu" ' \
+           'class="bg-bg-highlight-notes-blue foo"><span>Appendix text</span>'
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 3
+    assert result[0]["color"] == "blue"
+
+
+def test_extract_period_separator_page(tmp_path):
+    html = '<span>Page A.7</span></button>\n' \
+           'aria-label="Highlight: Technical text . Has context menu" ' \
+           'class="bg-bg-highlight-notes-yellow foo"><span>Technical text</span>'
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 7
+
+
 def test_extract_alphanumeric_page(tmp_path):
     html = '<span>Page A-3</span></button>\n' \
            'aria-label="Highlight: Appendix text . Has context menu" ' \
