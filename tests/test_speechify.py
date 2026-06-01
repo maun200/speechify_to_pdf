@@ -1020,6 +1020,33 @@ def test_verbose_tip_suppressed_when_verbose_active():
     assert "-v/--verbose" not in out.getvalue()
 
 
+def test_verbose_tip_suppressed_in_quiet_mode(tmp_path, capsys):
+    """In --quiet mode the verbose tip must not appear — quiet mode is for scripts."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+    import fitz
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: xyzzy not in pdf . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>xyzzy not in pdf</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    doc = fitz.open()
+    doc.new_page()
+    doc.save(str(pdf))
+    doc.close()
+
+    with pytest.raises(SystemExit):
+        _sys.argv = ["speechify-to-pdf", str(html), str(pdf), "-q"]
+        stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "-v/--verbose" not in captured.out
+
+
 # ── _detect_page_offset ────────────────────────────────────────────────────────
 
 def _make_located(pairs):
