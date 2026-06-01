@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "speechify-to-pdf"
-version = "1.2.1"
+version = "1.2.2"
 description = "Transfer Speechify highlights as annotations into a local PDF file"
 readme = "README.md"
 license = {text = "MIT"}
