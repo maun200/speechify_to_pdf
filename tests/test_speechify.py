@@ -530,6 +530,21 @@ def test_guess_pdf_path_google_drive_legacy(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_onedrive_macos(tmp_path, monkeypatch):
+    # OneDrive on macOS mounts under ~/Library/CloudStorage/OneDrive-Personal/
+    onedrive = tmp_path / "Library" / "CloudStorage" / "OneDrive-Personal"
+    onedrive.mkdir(parents=True)
+    pdf = onedrive / "MacOneDriveBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "MacOneDriveBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 # ── COLOR_MAP ─────────────────────────────────────────────────────────────────
 
 def test_color_map_values_in_range():

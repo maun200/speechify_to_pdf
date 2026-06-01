@@ -456,6 +456,11 @@ def guess_pdf_path(html_path: Path) -> Path | None:
            for p in sorted((Path.home() / "Library" / "CloudStorage").glob("GoogleDrive-*"))
            if (p / "My Drive").is_dir()]
           if (Path.home() / "Library" / "CloudStorage").exists() else []),
+        # OneDrive on macOS (CloudStorage mount): ~/Library/CloudStorage/OneDrive-Personal/ or OneDrive-{org}/
+        *([p
+           for p in sorted((Path.home() / "Library" / "CloudStorage").glob("OneDrive-*"))
+           if p.is_dir()]
+          if (Path.home() / "Library" / "CloudStorage").exists() else []),
     ]
     seen: set[Path] = set()
     for d in search_dirs:
