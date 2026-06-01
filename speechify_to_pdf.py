@@ -750,7 +750,11 @@ def main():
             print(f"Warning: overwriting existing output file: {output_path.name}", file=sys.stderr)
         # garbage=0: skip xref rebuild — DRM PDFs have intentionally broken
         # xref tables that garbage=4 would corrupt on re-save.
-        doc.save(output_path, garbage=0, deflate=True)
+        try:
+            doc.save(output_path, garbage=0, deflate=True)
+        except Exception as exc:
+            doc.close()
+            sys.exit(f"Error: could not save output PDF '{output_path}': {exc}")
         doc.close()
         print(f"\nSaved: {output_path}")
 
