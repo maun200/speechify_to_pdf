@@ -631,6 +631,118 @@ def test_guess_pdf_path_onedrive_macos(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_chinese_desktop(tmp_path, monkeypatch):
+    desk = tmp_path / "桌面"
+    desk.mkdir()
+    pdf = desk / "ChineseDesktopBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ChineseDesktopBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_japanese_desktop(tmp_path, monkeypatch):
+    desk = tmp_path / "デスクトップ"
+    desk.mkdir()
+    pdf = desk / "JapaneseDesktopBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "JapaneseDesktopBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_korean_desktop_windows(tmp_path, monkeypatch):
+    desk = tmp_path / "바탕화면"
+    desk.mkdir()
+    pdf = desk / "KoreanDesktopBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "KoreanDesktopBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_korean_desktop_macos(tmp_path, monkeypatch):
+    desk = tmp_path / "바탕 화면"
+    desk.mkdir()
+    pdf = desk / "KoreanDesktopMacBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "KoreanDesktopMacBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_simplified_chinese_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "下载"
+    dl.mkdir()
+    pdf = dl / "ChineseDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ChineseDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_traditional_chinese_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "下載"
+    dl.mkdir()
+    pdf = dl / "TraditionalChineseDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "TraditionalChineseDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_japanese_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "ダウンロード"
+    dl.mkdir()
+    pdf = dl / "JapaneseDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "JapaneseDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_korean_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "다운로드"
+    dl.mkdir()
+    pdf = dl / "KoreanDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "KoreanDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 # ── COLOR_MAP ─────────────────────────────────────────────────────────────────
 
 def test_color_map_values_in_range():
