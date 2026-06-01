@@ -760,11 +760,15 @@ def main():
 
     if args.dry_run:
         doc.close()
-        exists_note = " (would overwrite existing file)" if output_path.exists() else ""
-        if not output_path.parent.exists():
-            print(f"Warning: output directory does not exist: {output_path.parent}", file=sys.stderr)
-        if not args.quiet:
-            print(f"\nDry run — no file written. Would save to: {output_path}{exists_note}")
+        if done == 0:
+            if not args.quiet:
+                print("\nDry run — no file written. No highlights would be transferred.")
+        else:
+            exists_note = " (would overwrite existing file)" if output_path.exists() else ""
+            if not output_path.parent.exists():
+                print(f"Warning: output directory does not exist: {output_path.parent}", file=sys.stderr)
+            if not args.quiet:
+                print(f"\nDry run — no file written. Would save to: {output_path}{exists_note}")
     else:
         if output_path.exists():
             print(f"Warning: overwriting existing output file: {output_path.name}", file=sys.stderr)

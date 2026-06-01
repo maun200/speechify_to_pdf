@@ -1137,6 +1137,34 @@ def test_dry_run_warns_when_output_dir_missing(tmp_path, capsys, monkeypatch):
     assert "output directory does not exist" in captured.err
 
 
+def test_dry_run_no_highlights_transferred_message(tmp_path, capsys):
+    """When --dry-run finds highlights in HTML but none locate in the PDF, it must
+    say 'no highlights would be transferred' rather than the misleading 'Would save to:'."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+    import fitz
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: xyzzy_notfound_text . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>xyzzy_notfound_text</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    doc = fitz.open()
+    doc.new_page()
+    doc.save(str(pdf))
+    doc.close()
+
+    _sys.argv = ["speechify-to-pdf", str(html), str(pdf), "--dry-run"]
+    stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "Would save to" not in captured.out
+    assert "No highlights would be transferred" in captured.out
+
+
 # ── verbose tip on not-found highlights ──────────────────────────────────────
 
 def test_verbose_tip_shown_when_not_found_without_verbose():
