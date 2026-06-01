@@ -58,11 +58,7 @@ Python 3.10 or newer.
 speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf"
 ```
 
-Or if you downloaded the script directly:
-
-```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf"
-```
+> **Installed manually?** Replace `speechify-to-pdf` with `python3 speechify_to_pdf.py` in any command below.
 
 This creates `Book_highlights.pdf` in the same folder as the original PDF.
 
@@ -78,38 +74,38 @@ speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" -v
 
 **Auto-detect the PDF (if HTML filename matches):**
 ```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html"
+speechify-to-pdf "Book.pdf _ Speechify.html"
 ```
 
 **Preview without writing any file (dry run):**
 ```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --dry-run
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --dry-run
 ```
 
 **Suppress progress output (useful for scripts/batch processing):**
 ```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" -q
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" -q
 ```
 
 **Open a password-protected PDF:**
 ```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --password "mysecret"
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --password "mysecret"
 ```
 
 **Fix page offset (e.g. PDF has a 20-page preface Speechify doesn't count):**
 ```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --page-offset 20
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --page-offset 20
 ```
 
 **Transfer only specific highlight colors:**
 ```bash
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --colors yellow
-python3 speechify_to_pdf.py "Book.pdf _ Speechify.html" "Book.pdf" --colors yellow,pink
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --colors yellow
+speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --colors yellow,pink
 ```
 
 **Check the version:**
 ```bash
-python3 speechify_to_pdf.py --version
+speechify-to-pdf --version
 ```
 
 ## Example Output
@@ -117,7 +113,7 @@ python3 speechify_to_pdf.py --version
 Running the tool on a typical document:
 
 ```
-$ python3 speechify_to_pdf.py "Algorithms.pdf _ Speechify.html" "Algorithms.pdf"
+$ speechify-to-pdf "Algorithms.pdf _ Speechify.html" "Algorithms.pdf"
 HTML:  Algorithms.pdf _ Speechify.html
        17 highlights found
 PDF:   Algorithms.pdf  (412 pages)
@@ -135,7 +131,7 @@ Saved: Algorithms_highlights.pdf
 With `--verbose`, each highlight is shown as it is placed:
 
 ```
-$ python3 speechify_to_pdf.py "Algorithms.pdf _ Speechify.html" "Algorithms.pdf" -v
+$ speechify-to-pdf "Algorithms.pdf _ Speechify.html" "Algorithms.pdf" -v
 HTML:  Algorithms.pdf _ Speechify.html
        17 highlights found
 PDF:   Algorithms.pdf  (412 pages)
@@ -152,7 +148,7 @@ Saved: Algorithms_highlights.pdf
 Dry run (preview without writing):
 
 ```
-$ python3 speechify_to_pdf.py "Algorithms.pdf _ Speechify.html" "Algorithms.pdf" --dry-run
+$ speechify-to-pdf "Algorithms.pdf _ Speechify.html" "Algorithms.pdf" --dry-run
 HTML:  Algorithms.pdf _ Speechify.html
        17 highlights found
 PDF:   Algorithms.pdf  (412 pages)
