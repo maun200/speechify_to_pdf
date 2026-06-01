@@ -74,10 +74,10 @@ _TRAILING_PUNCT = ".,;:!?)]}'\"" + "’”"
 
 
 def _parse_page_num(s: str) -> int:
-    if s.isdigit():
+    if re.match(r'^[0-9]+$', s):
         return int(s)
     # Alphanumeric labels like "A-1", "B2" (appendix pages in some textbooks)
-    m = re.match(r'[A-Za-z]-?(\d+)$', s)
+    m = re.match(r'[A-Za-z]-?([0-9]+)$', s)
     if m:
         return int(m.group(1))
     # Roman numerals
