@@ -306,6 +306,21 @@ def test_guess_pdf_path_google_drive_for_desktop(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_google_drive_for_desktop_windows(tmp_path, monkeypatch):
+    # Google Drive for Desktop on Windows/Linux stores files in ~/My Drive by default.
+    gdrive_win = tmp_path / "My Drive"
+    gdrive_win.mkdir()
+    pdf = gdrive_win / "WinGDriveBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "WinGDriveBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 def test_guess_pdf_path_windows_icloud(tmp_path, monkeypatch):
     icloud_win = tmp_path / "iCloudDrive"
     icloud_win.mkdir()
