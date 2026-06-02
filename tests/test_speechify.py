@@ -1457,3 +1457,97 @@ def test_detect_offset_no_consensus():
     # offsets: 1-0=1, 5-1=4, 9-2=7, 13-3=10 → all different, count=1 each
     # max(1, 4//2) = 2; all counts are 1, so no consensus
     assert stp._detect_page_offset(located, 0) is None
+
+
+# ── _collect_lines ────────────────────────────────────────────────────────────
+
+def test_collect_lines_groups_same_line():
+    """Words on the same text line are merged into a single rect."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=200)
+    page.insert_text((10, 50), "Hello world test")
+    rects = stp._collect_lines(page, 30, 80)
+    doc.close()
+    assert len(rects) == 1
+
+
+def test_collect_lines_separates_different_lines():
+    """Words on distinct lines (far apart vertically) produce separate rects."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=300)
+    page.insert_text((10, 50), "First line")
+    page.insert_text((10, 120), "Second line")
+    rects = stp._collect_lines(page, 0, 200)
+    doc.close()
+    assert len(rects) == 2
+
+
+def test_collect_lines_excludes_outside_range():
+    """Words outside [y_start, y_end] are not included."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=300)
+    page.insert_text((10, 50), "Above range")
+    page.insert_text((10, 180), "In range")
+    rects = stp._collect_lines(page, 150, 220)
+    doc.close()
+    assert len(rects) == 1
+
+
+# ── _valid_rects ──────────────────────────────────────────────────────────────
+
+def test_valid_rects_keeps_in_bounds_rect():
+    """A normal in-bounds rect is returned unchanged (clipped to page)."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=300)
+    r = fitz.Rect(10, 10, 200, 30)
+    result = stp._valid_rects(page, [r])
+    doc.close()
+    assert len(result) == 1
+
+
+def test_valid_rects_drops_zero_width_rect():
+    """A rect with zero width is dropped."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=300)
+    r = fitz.Rect(50, 10, 50, 30)  # zero width
+    result = stp._valid_rects(page, [r])
+    doc.close()
+    assert result == []
+
+
+def test_valid_rects_drops_zero_height_rect():
+    """A rect with zero height is dropped."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=300)
+    r = fitz.Rect(10, 50, 200, 50)  # zero height
+    result = stp._valid_rects(page, [r])
+    doc.close()
+    assert result == []
+
+
+def test_valid_rects_clips_and_keeps_partially_in_bounds():
+    """A rect extending past the right page edge is clipped but kept."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=300)
+    r = fitz.Rect(380, 10, 500, 30)  # extends 100pt past page right edge
+    result = stp._valid_rects(page, [r])
+    doc.close()
+    assert len(result) == 1
+    assert result[0].x1 <= 400
+
+
+def test_valid_rects_empty_input():
+    """Empty input returns empty output."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=300)
+    result = stp._valid_rects(page, [])
+    doc.close()
+    assert result == []
