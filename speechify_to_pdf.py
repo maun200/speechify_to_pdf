@@ -662,7 +662,8 @@ def main():
             hint = "Wrong password.\n" if args.password else ""
             sys.exit(
                 f"PDF is password-protected: {pdf_path.name}\n"
-                f"{hint}Pass --password PASSWORD, or decrypt first (e.g. qpdf --decrypt)."
+                f"{hint}Pass --password PASSWORD, or decrypt first:\n"
+                f"  qpdf --decrypt \"{pdf_path.name}\" decrypted.pdf"
             )
     if not args.quiet:
         print(f"PDF:   {pdf_path.name}  ({doc.page_count} pages)")
