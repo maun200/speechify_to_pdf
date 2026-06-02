@@ -559,11 +559,32 @@ def main():
                         help="Only transfer highlights of the specified color(s), comma-separated "
                              "(e.g. --colors yellow,pink). Valid colors: " + ", ".join(sorted(COLOR_MAP)))
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("--list", action="store_true",
+                        help="List highlights found in the HTML file without processing a PDF")
     args = parser.parse_args()
 
     html_path = Path(args.html).expanduser().resolve()
     if not html_path.exists():
         sys.exit(f"HTML file not found: {html_path}")
+
+    if args.list:
+        highlights = extract_highlights(html_path)
+        if not highlights:
+            print("No highlights found.")
+        else:
+            color_counts = Counter(h["color"] for h in highlights)
+            total = len(highlights)
+            s = "" if total == 1 else "s"
+            trunc = sum(1 for h in highlights if h["truncated"])
+            noted = sum(1 for h in highlights if h["note"])
+            print(f"{total} highlight{s} found in {html_path.name}:")
+            for color, count in sorted(color_counts.items(), key=lambda x: -x[1]):
+                print(f"  {count:4d}  {color}")
+            if trunc:
+                print(f"  ({trunc} truncated by Speechify sidebar)")
+            if noted:
+                print(f"  ({noted} with attached notes)")
+        return
 
     if args.pdf:
         pdf_path = Path(args.pdf).expanduser().resolve()

@@ -1443,6 +1443,65 @@ def test_verbose_tip_suppressed_in_quiet_mode(tmp_path, capsys):
     assert "-v/--verbose" not in captured.out
 
 
+# ── --list mode ──────────────────────────────────────────────────────────────
+
+def test_list_mode_prints_summary(tmp_path, capsys):
+    """--list prints a color breakdown and returns without requiring a PDF."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: First highlight . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>First highlight</span>\n'
+        '<span>Page 2</span></button>\n'
+        'aria-label="Highlight: Second highlight . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>Second highlight</span>\n'
+        'aria-label="Highlight: A pink one . Has context menu"'
+        ' class="bg-bg-highlight-notes-pink foo"><span>A pink one</span>',
+        encoding="utf-8",
+    )
+    _sys.argv = ["speechify-to-pdf", str(html), "--list"]
+    stp_module.main()
+    captured = capsys.readouterr()
+    assert "3 highlights found" in captured.out
+    assert "yellow" in captured.out
+    assert "pink" in captured.out
+
+
+def test_list_mode_no_highlights(tmp_path, capsys):
+    """--list on an HTML with no highlights prints a clear message."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Empty _ Speechify.html"
+    html.write_text("<html></html>", encoding="utf-8")
+    _sys.argv = ["speechify-to-pdf", str(html), "--list"]
+    stp_module.main()
+    captured = capsys.readouterr()
+    assert "No highlights found" in captured.out
+
+
+def test_list_mode_shows_truncated_count(tmp_path, capsys):
+    """--list notes how many highlights are truncated by Speechify."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: A very long highlight that gets cut off... . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo">'
+        '<span>A very long highlight that gets cut off...</span>',
+        encoding="utf-8",
+    )
+    _sys.argv = ["speechify-to-pdf", str(html), "--list"]
+    stp_module.main()
+    captured = capsys.readouterr()
+    assert "truncated" in captured.out
+
+
 # ── _detect_page_offset ────────────────────────────────────────────────────────
 
 def _make_located(pairs):
