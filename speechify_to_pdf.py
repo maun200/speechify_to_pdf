@@ -139,7 +139,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
         blocks = re.findall(
             r'aria-label="Highlight: (.*?)(?:\. Note: (.*?))?\s*\.\s*Has context menu"'
             r".*?"
-            r'bg-bg-highlight-notes-(\w+)[^"]*"[^>]*>(.*?)</span>',
+            r'bg-bg-highlight-notes-(\w+(?:-\w+)*)[^"]*"[^>]*>(.*?)</span>',
             section,
             re.DOTALL,
         )
