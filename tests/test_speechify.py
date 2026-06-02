@@ -930,6 +930,27 @@ def test_extract_highlights_persian_page_label(tmp_path):
     assert result[0]["page"] == 9
 
 
+def test_extract_highlights_persian_arabic_indic_digits(tmp_path):
+    # Speechify on Persian/Arabic books emits Arabic-Indic digits (U+06F0–U+06F9 / U+0660–U+0669).
+    # Both variants must be accepted and normalized to their ASCII equivalents.
+    for page_label, expected_page in [
+        ("صفحه ۱۲", 12),    # Extended Arabic-Indic (Persian/Urdu), U+06F0–U+06F9
+        ("صفحة ١٢", 12),    # Arabic-Indic, U+0660–U+0669
+    ]:
+        html = (
+            f'<span>{page_label}</span></button>\n'
+            'aria-label="Highlight: some text . Has context menu" '
+            'class="bg-bg-highlight-notes-yellow foo"><span>some text</span>'
+        )
+        f = tmp_path / "test.html"
+        f.write_text(html, encoding="utf-8")
+        result = stp.extract_highlights(f)
+        assert len(result) == 1, f"expected 1 highlight for label {page_label!r}"
+        assert result[0]["page"] == expected_page, (
+            f"page {result[0]['page']} != {expected_page} for label {page_label!r}"
+        )
+
+
 def test_extract_highlights_hindi_page_label(tmp_path):
     html = (
         '<span>पृष्ठ 4</span></button>\n'
@@ -1119,14 +1140,16 @@ def test_extract_roman_numeral_page(tmp_path):
     assert result[0]["page"] == 14
 
 
-def test_page_num_pat_rejects_unicode_digits():
-    # Python's \d matches Unicode decimal digits (e.g. Arabic-Indic "٣"), but
-    # int() cannot parse them, causing a ValueError.  _PAGE_NUM_PAT must use
-    # [0-9] so those characters are never captured as page numbers.
-    arabic_indic_digit = "٣"  # U+0663, isdigit()=True but int() raises ValueError
-    assert not re.fullmatch(stp._PAGE_NUM_PAT, arabic_indic_digit), (
-        "_PAGE_NUM_PAT must not match non-ASCII decimal digits"
-    )
+def test_page_num_arabic_indic_digit_matches_and_normalizes():
+    # Arabic-Indic "٣" (U+0663) and Persian "۳" (U+06F3) must be accepted by
+    # _PAGE_NUM_PAT and normalized to ASCII by _parse_page_num so int() never
+    # sees the raw Unicode digits (which would raise ValueError).
+    assert re.fullmatch(stp._PAGE_NUM_PAT, "٣"), "_PAGE_NUM_PAT must match Arabic-Indic digit"
+    assert re.fullmatch(stp._PAGE_NUM_PAT, "۳"), "_PAGE_NUM_PAT must match Persian digit"
+    assert stp._parse_page_num("٣") == 3
+    assert stp._parse_page_num("۳") == 3
+    assert stp._parse_page_num("١٢٣") == 123
+    assert stp._parse_page_num("۱۲۳") == 123
 
 
 def test_extract_nbsp_entity_in_page_label(tmp_path):

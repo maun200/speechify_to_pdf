@@ -58,13 +58,23 @@ _PAGE_WORDS = r"(?:Page|Seite|Página|Pàgina|Pagina|Pagine|Puslapis|Lappuse|Tud
 _WS     = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"   # one-or-more
 _WS_OPT = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)*"   # zero-or-more
 
-# Matches decimal, alphanumeric (e.g. "A-1", "AB-5", "A.10", "B2"), or roman-numeral page numbers.
-# [0-9] instead of \d: Python's \d matches Unicode decimal digits (Arabic-Indic,
-# Devanagari, etc.) which isdigit() accepts but int() cannot parse, causing a crash.
+# Arabic-Indic (U+0660–U+0669) and Extended Arabic-Indic / Persian (U+06F0–U+06F9) digit
+# normalization: Speechify on Arabic/Persian books uses these digits in page labels.
+# We accept them in the regex and normalize to ASCII before int() parsing.
+_ARABIC_INDIC_NORM = str.maketrans(
+    "٠١٢٣٤٥٦٧٨٩"   # U+0660–U+0669  Arabic-Indic
+    "۰۱۲۳۴۵۶۷۸۹",  # U+06F0–U+06F9  Extended Arabic-Indic (Persian/Urdu)
+    "01234567890123456789",
+)
+
+# Matches decimal (ASCII + Arabic-Indic), alphanumeric (e.g. "A-1", "AB-5", "A.10"),
+# or roman-numeral page numbers.  Arabic-Indic digits are accepted here and normalized
+# to ASCII in _parse_page_num before int() is called (avoids ValueError on raw digits).
 # Order matters: alphanumeric must come before roman to avoid "D" being parsed as 500.
 # {1,2} prefix: supports double-letter appendix labels (AA-1, AB.5) used in some textbooks.
 # [-.]? separator: period separator (A.10) appears in some European/technical publishers.
-_PAGE_NUM_PAT = r"[0-9]+|[A-Za-z]{1,2}[-.]?[0-9]+|[ivxlcdmIVXLCDM]+"
+_DIGIT_PAT    = r"[0-9٠-٩۰-۹]"
+_PAGE_NUM_PAT = rf"{_DIGIT_PAT}+|[A-Za-z]{{1,2}}[-.]?{_DIGIT_PAT}+|[ivxlcdmIVXLCDM]+"
 _PAGE_NUM_NC  = r"(?:" + _PAGE_NUM_PAT + ")"     # non-capturing group (for splitting)
 _PAGE_NUM     = r"("   + _PAGE_NUM_PAT + ")"     # capturing group (for match.group(1))
 
@@ -76,6 +86,7 @@ _TRAILING_PUNCT = ".,;:!?)]}'\"" + "’”"
 
 
 def _parse_page_num(s: str) -> int:
+    s = s.translate(_ARABIC_INDIC_NORM)  # normalize Arabic-Indic / Persian digits → ASCII
     if re.match(r'^[0-9]+$', s):
         return int(s)
     # Alphanumeric labels: "A-1", "B2", "AB-5", "A.10" (appendix pages in textbooks/manuals)
