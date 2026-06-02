@@ -1641,3 +1641,125 @@ def test_guess_pdf_path_russian_downloads(tmp_path, monkeypatch):
     monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
     found = stp.guess_pdf_path(html)
     assert found == pdf
+
+
+# ── find_start ────────────────────────────────────────────────────────────────
+
+def _make_page(text: str, y: float = 100, width: int = 400, height: int = 300):
+    """Return an open fitz.Document and its single page with `text` inserted at (10, y)."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=width, height=height)
+    page.insert_text((10, y), text)
+    return doc, page
+
+
+def test_find_start_exact_match():
+    """find_start returns the first rect when the full text is on the page."""
+    doc, page = _make_page("The quick brown fox jumps")
+    r = stp.find_start(page, "The quick brown fox jumps")
+    doc.close()
+    assert r is not None
+
+
+def test_find_start_short_text_single_word():
+    """Single-word text is handled via the short-text path."""
+    doc, page = _make_page("Hello")
+    r = stp.find_start(page, "Hello")
+    doc.close()
+    assert r is not None
+
+
+def test_find_start_short_text_two_words():
+    """Two-word text is handled via the short-text path."""
+    doc, page = _make_page("Hello world")
+    r = stp.find_start(page, "Hello world")
+    doc.close()
+    assert r is not None
+
+
+def test_find_start_short_text_trailing_punctuation():
+    """Short text with trailing punctuation is found after stripping."""
+    doc, page = _make_page("Hello world")
+    r = stp.find_start(page, "Hello world!")
+    doc.close()
+    assert r is not None
+
+
+def test_find_start_prefix_match():
+    """When the full 8-word prefix is on the page, find_start matches it."""
+    doc, page = _make_page("one two three four five six seven eight nine ten")
+    r = stp.find_start(page, "one two three four five six seven eight nine ten")
+    doc.close()
+    assert r is not None
+
+
+def test_find_start_skip_fallback():
+    """If first word isn't on the page but subsequent words are, skip-fallback finds them."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=300)
+    # Only insert the tail of the highlight (simulating a page break after first word)
+    page.insert_text((10, 100), "brown fox jumps over")
+    r = stp.find_start(page, "The brown fox jumps over")
+    doc.close()
+    assert r is not None
+
+
+def test_find_start_not_found_returns_none():
+    """find_start returns None when the text is not on the page."""
+    doc, page = _make_page("Something completely different")
+    r = stp.find_start(page, "xyzzy_absent_text_notfound")
+    doc.close()
+    assert r is None
+
+
+# ── find_end_on_page ──────────────────────────────────────────────────────────
+
+def test_find_end_on_page_found():
+    """find_end_on_page returns y_end when the suffix appears on the page."""
+    doc, page = _make_page("alpha beta gamma delta epsilon")
+    y_end = stp.find_end_on_page(page, "alpha beta gamma delta epsilon", y_min=0)
+    doc.close()
+    assert y_end is not None
+    assert y_end > 0
+
+
+def test_find_end_on_page_short_text():
+    """Two-word suffix is found via the short-text path in find_end_on_page."""
+    doc, page = _make_page("Hello world")
+    y_end = stp.find_end_on_page(page, "Hello world", y_min=0)
+    doc.close()
+    assert y_end is not None
+
+
+def test_find_end_on_page_ymin_constraint():
+    """find_end_on_page ignores matches whose y0 is above y_min."""
+    import fitz
+    doc = fitz.open()
+    page = doc.new_page(width=400, height=400)
+    page.insert_text((10, 50), "target text here")    # high on page
+    page.insert_text((10, 250), "target text here")   # low on page
+    # With a y_min of 200, only the lower occurrence should be found.
+    y_end = stp.find_end_on_page(page, "target text here", y_min=200)
+    doc.close()
+    assert y_end is not None
+    assert y_end > 200
+
+
+def test_find_end_on_page_not_found_returns_none():
+    """find_end_on_page returns None when the text is not on the page."""
+    doc, page = _make_page("Something else entirely")
+    y_end = stp.find_end_on_page(page, "xyzzy_absent_text_notfound", y_min=0)
+    doc.close()
+    assert y_end is None
+
+
+def test_find_end_on_page_ymin_excludes_all_occurrences():
+    """find_end_on_page returns None when all matches are above y_min."""
+    doc, page = _make_page("only match here", y=50)
+    # y_min set well below the text; all matches have y0 around 50, so y0 < 400-2 is fine
+    # but if we set y_min=300, the match at y≈50 should be excluded.
+    y_end = stp.find_end_on_page(page, "only match here", y_min=300)
+    doc.close()
+    assert y_end is None
