@@ -581,8 +581,8 @@ def main():
 
     if output_path == html_path:
         sys.exit(
-            f"Error: output path is the same as the input HTML file — this would overwrite your source.\n"
-            f"Please choose a different output path."
+            "Error: output path is the same as the input HTML file — this would overwrite your source.\n"
+            "Please choose a different output path."
         )
 
     if not args.dry_run:
