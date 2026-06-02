@@ -145,7 +145,7 @@ def extract_highlights(html_path: Path) -> list[dict]:
         )
 
         for aria_raw, note_raw, color, span_html in blocks:
-            span_text = re.sub(r"<[^>]+>", "", span_html).strip()
+            span_text = re.sub(r"<[^>]+>", " ", span_html).strip()
             span_text = html.unescape(re.sub(r"\s+", " ", span_text))
 
             aria_text = html.unescape(re.sub(r"\s+", " ", aria_raw).strip())
