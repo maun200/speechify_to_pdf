@@ -1266,6 +1266,27 @@ def test_output_path_same_as_pdf_is_rejected(tmp_path, monkeypatch, capsys):
     assert "same as the input PDF" in captured.out or "same as the input PDF" in str(exc_info.value.code)
 
 
+def test_output_path_is_directory_is_rejected(tmp_path, capsys):
+    """Passing an existing directory as -o must be rejected with a clear error."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text('<span>Page 1</span></button>\n', encoding="utf-8")
+    pdf = tmp_path / "Book.pdf"
+    pdf.touch()
+    out_dir = tmp_path / "output_dir"
+    out_dir.mkdir()
+
+    with pytest.raises(SystemExit) as exc_info:
+        _sys.argv = ["speechify-to-pdf", str(html), str(pdf), "-o", str(out_dir)]
+        stp_module.main()
+
+    assert exc_info.value.code != 0
+    msg = str(exc_info.value.code)
+    assert "directory" in msg
+
+
 # ── dry-run output-directory check ───────────────────────────────────────────
 
 def test_dry_run_skips_output_dir_writability_check(tmp_path, capsys):

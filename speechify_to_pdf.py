@@ -589,6 +589,13 @@ def main():
             "Please choose a different output path."
         )
 
+    if output_path.is_dir():
+        suggested = output_path / (pdf_path.stem + "_highlights.pdf")
+        sys.exit(
+            f"Error: output path is a directory, not a file: {output_path}\n"
+            f"Did you mean: {suggested}"
+        )
+
     if not args.dry_run:
         if not output_path.parent.exists():
             sys.exit(f"Error: output directory does not exist: {output_path.parent}")
