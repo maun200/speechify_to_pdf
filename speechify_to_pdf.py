@@ -543,7 +543,10 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done without writing output file")
     parser.add_argument("--password", metavar="PASSWORD", help="Password for encrypted/password-protected PDFs")
     parser.add_argument("--page-offset", type=int, default=0, metavar="N",
-                        help="Shift all page lookups by N pages (e.g. 20 if the PDF has a 20-page preface not counted by Speechify)")
+                        help="Shift all page lookups by N pages. Use a positive value when the PDF has "
+                             "unnumbered front matter Speechify does not count (e.g. --page-offset 20 for a "
+                             "20-page preface). Use a negative value when the PDF page numbers start above 1 "
+                             "(e.g. --page-offset -299 for a journal article whose pages are numbered 300–320).")
     parser.add_argument("--colors", metavar="COLOR[,COLOR...]",
                         help="Only transfer highlights of the specified color(s), comma-separated "
                              "(e.g. --colors yellow,pink). Valid colors: " + ", ".join(sorted(COLOR_MAP)))

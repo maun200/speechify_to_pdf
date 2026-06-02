@@ -97,6 +97,11 @@ speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --password "mysecret"
 speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --page-offset 20
 ```
 
+**Fix page offset for journal articles (PDF pages start above 1, e.g. pages 300–320):**
+```bash
+speechify-to-pdf "Article _ Speechify.html" "Article.pdf" --page-offset -299
+```
+
 **Transfer only specific highlight colors:**
 ```bash
 speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --colors yellow
@@ -191,6 +196,12 @@ Dry run — no file written. Would save to: Algorithms_highlights.pdf
 
 **`UnicodeDecodeError` when reading the HTML file**
 → Your browser saved the page in a non-UTF-8 encoding. The script automatically falls back to `latin-1`; if you still see errors, re-save the page in your browser and ensure "UTF-8" is selected in the save dialog.
+
+**Highlights appear on the wrong pages (shifted up or down)**
+→ The PDF page numbering does not match Speechify's. Use `--page-offset N`:
+- Positive N: PDF has front matter (preface, TOC) that Speechify does not count. E.g. `--page-offset 20`.
+- Negative N: PDF pages start above 1 (e.g. a journal article numbered pages 300–320). E.g. `--page-offset -299`.
+The tool prints a suggested offset automatically when many highlights are missed.
 
 **"PDF is password-protected"**
 → Pass the password with `--password "yourpassword"`. If you don't know the password, decrypt the file first with `qpdf --decrypt input.pdf output.pdf`.
