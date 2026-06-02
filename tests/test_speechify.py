@@ -1551,3 +1551,59 @@ def test_valid_rects_empty_input():
     result = stp._valid_rects(page, [])
     doc.close()
     assert result == []
+
+
+def test_guess_pdf_path_spanish_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Descargas"
+    dl.mkdir()
+    pdf = dl / "SpanishDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "SpanishDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_italian_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Scaricati"
+    dl.mkdir()
+    pdf = dl / "ItalianDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ItalianDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_polish_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Pobrane"
+    dl.mkdir()
+    pdf = dl / "PolishDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "PolishDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_russian_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Загрузки"
+    dl.mkdir()
+    pdf = dl / "RussianDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "RussianDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
