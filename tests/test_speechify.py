@@ -1643,6 +1643,118 @@ def test_guess_pdf_path_russian_downloads(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_ukrainian_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Завантаження"
+    dl.mkdir()
+    pdf = dl / "UkrainianDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "UkrainianDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_turkish_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "İndirmeler"
+    dl.mkdir()
+    pdf = dl / "TurkishDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "TurkishDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_swedish_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Nedladdningar"
+    dl.mkdir()
+    pdf = dl / "SwedishDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "SwedishDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_finnish_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Lataukset"
+    dl.mkdir()
+    pdf = dl / "FinnishDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "FinnishDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_hungarian_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Letöltések"
+    dl.mkdir()
+    pdf = dl / "HungarianDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "HungarianDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_greek_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Λήψεις"
+    dl.mkdir()
+    pdf = dl / "GreekDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "GreekDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_danish_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Overførsler"
+    dl.mkdir()
+    pdf = dl / "DanishDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "DanishDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_norwegian_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Nedlastinger"
+    dl.mkdir()
+    pdf = dl / "NorwegianDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "NorwegianDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 # ── find_start ────────────────────────────────────────────────────────────────
 
 def _make_page(text: str, y: float = 100, width: int = 400, height: int = 300):

@@ -475,6 +475,14 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Scaricati",               # Italian (macOS)
         Path.home() / "Pobrane",                 # Polish
         Path.home() / "Загрузки",                # Russian / Bulgarian
+        Path.home() / "Завантаження",            # Ukrainian
+        Path.home() / "İndirmeler",              # Turkish
+        Path.home() / "Nedladdningar",           # Swedish
+        Path.home() / "Lataukset",               # Finnish
+        Path.home() / "Letöltések",              # Hungarian
+        Path.home() / "Λήψεις",                  # Greek
+        Path.home() / "Overførsler",             # Danish
+        Path.home() / "Nedlastinger",            # Norwegian
         Path.home() / "下载",                    # Simplified Chinese
         Path.home() / "下載",                    # Traditional Chinese
         Path.home() / "ダウンロード",             # Japanese
