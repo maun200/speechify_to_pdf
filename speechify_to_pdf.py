@@ -597,7 +597,9 @@ def main():
 
     color_filter: set[str] | None = None
     if args.colors:
-        color_filter = {c.strip().lower() for c in args.colors.split(",")}
+        color_filter = {c.strip().lower() for c in args.colors.split(",") if c.strip()}
+        if not color_filter:
+            sys.exit(f"Error: --colors requires at least one color name. Valid colors: {', '.join(sorted(COLOR_MAP))}")
         invalid = color_filter - set(COLOR_MAP)
         if invalid:
             sys.exit(f"Error: unknown color(s): {', '.join(sorted(invalid))}. Valid colors: {', '.join(sorted(COLOR_MAP))}")
