@@ -1988,3 +1988,33 @@ def test_find_end_on_page_ymin_excludes_all_occurrences():
     y_end = stp.find_end_on_page(page, "only match here", y_min=300)
     doc.close()
     assert y_end is None
+
+
+# ── unknown highlight color warning ──────────────────────────────────────────
+
+def test_unknown_color_warning_printed_to_stderr(tmp_path, capsys):
+    """An unrecognized highlight color must trigger a stderr warning during annotation."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+    import fitz
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: hello world . Has context menu"'
+        ' class="bg-bg-highlight-notes-light-yellow foo"><span>hello world</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 100), "hello world")
+    doc.save(str(pdf))
+    doc.close()
+
+    _sys.argv = ["speechify-to-pdf", str(html), str(pdf), "-q"]
+    stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "light-yellow" in captured.err
+    assert "will render as yellow" in captured.err
