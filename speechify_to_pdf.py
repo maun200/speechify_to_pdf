@@ -650,10 +650,7 @@ def main():
     if args.colors:
         color_filter = {c.strip().lower() for c in args.colors.split(",") if c.strip()}
         if not color_filter:
-            sys.exit(f"Error: --colors requires at least one color name. Valid colors: {', '.join(sorted(COLOR_MAP))}")
-        invalid = color_filter - set(COLOR_MAP)
-        if invalid:
-            sys.exit(f"Error: unknown color(s): {', '.join(sorted(invalid))}. Valid colors: {', '.join(sorted(COLOR_MAP))}")
+            sys.exit(f"Error: --colors requires at least one color name. Standard colors: {', '.join(sorted(COLOR_MAP))}")
 
     if not args.quiet:
         print(f"HTML:  {html_path.name}")
