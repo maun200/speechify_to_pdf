@@ -658,6 +658,9 @@ def main():
         color_filter = {c.strip().lower() for c in args.colors.split(",") if c.strip()}
         if not color_filter:
             sys.exit(f"Error: --colors requires at least one color name. Standard colors: {', '.join(sorted(COLOR_MAP))}")
+        unknown_filter_colors = color_filter - COLOR_MAP.keys()
+        for uc in sorted(unknown_filter_colors):
+            print(f"Warning: '{uc}' is not a known highlight color. Valid colors: {', '.join(sorted(COLOR_MAP))}", file=sys.stderr)
 
     if not args.quiet:
         print(f"HTML:  {html_path.name}")
