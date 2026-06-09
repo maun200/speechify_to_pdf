@@ -1300,6 +1300,25 @@ def test_output_path_is_directory_is_rejected(tmp_path, capsys):
     assert "directory" in msg
 
 
+# ── swapped-argument warning ─────────────────────────────────────────────────
+
+def test_html_arg_with_pdf_extension_warns(tmp_path, capsys):
+    """Passing a .pdf file as the HTML argument should print a warning to stderr."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+
+    pdf_as_html = tmp_path / "Book.pdf"
+    pdf_as_html.write_text("<html></html>", encoding="utf-8")  # not a real PDF, but exists
+
+    with pytest.raises(SystemExit):
+        _sys.argv = ["speechify-to-pdf", str(pdf_as_html)]
+        stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "looks like a PDF" in captured.err
+    assert "swap" in captured.err
+
+
 # ── dry-run output-directory check ───────────────────────────────────────────
 
 def test_dry_run_skips_output_dir_writability_check(tmp_path, capsys):

@@ -572,6 +572,12 @@ def main():
     html_path = Path(args.html).expanduser().resolve()
     if not html_path.exists():
         sys.exit(f"HTML file not found: {html_path}")
+    if html_path.suffix.lower() == ".pdf":
+        print(
+            f"Warning: '{html_path.name}' looks like a PDF, not an HTML file.\n"
+            "  Did you swap the arguments? Usage: speechify-to-pdf <html> [<pdf>]",
+            file=sys.stderr,
+        )
 
     if args.list:
         highlights = extract_highlights(html_path)
