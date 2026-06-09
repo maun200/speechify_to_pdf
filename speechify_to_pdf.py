@@ -234,20 +234,26 @@ def find_start(page: fitz.Page, text: str) -> fitz.Rect | None:
                 return hits[0]
         return None
 
-    # Prefix search: longest match wins, stops at 3 words
+    # Prefix search: longest match wins, stops at 3 words.
+    # Also try stripping trailing punctuation from the prefix (mirrors find_end_on_page),
+    # so a prefix ending with e.g. "word," still matches when the PDF has "word".
     for n in range(min(8, len(words)), 2, -1):
-        hits = page.search_for(" ".join(words[:n]))
-        if hits:
-            return hits[0]
+        prefix = " ".join(words[:n])
+        for query in dict.fromkeys([prefix, prefix.rstrip(_TRAILING_PUNCT)]):
+            hits = page.search_for(query)
+            if hits:
+                return hits[0]
 
     # Fallback: skip leading word(s) to dodge orphaned hyphens.
     # Stop at n=2 (inclusive) so 3-word texts get a 2-word substring try —
     # mirroring find_end_on_page which already uses range(..., 1, -1).
     for skip in range(1, min(4, len(words))):
         for n in range(min(7, len(words) - skip), 1, -1):
-            hits = page.search_for(" ".join(words[skip:skip + n]))
-            if hits:
-                return hits[0]
+            candidate = " ".join(words[skip:skip + n])
+            for query in dict.fromkeys([candidate, candidate.rstrip(_TRAILING_PUNCT)]):
+                hits = page.search_for(query)
+                if hits:
+                    return hits[0]
 
     return None
 

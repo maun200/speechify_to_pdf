@@ -1885,6 +1885,16 @@ def test_find_start_not_found_returns_none():
     assert r is None
 
 
+def test_find_start_long_text_trailing_punctuation():
+    """3-word prefix with trailing punctuation is found after stripping (mirrors find_end_on_page)."""
+    doc, page = _make_page("Hello beautiful world and more words")
+    # The prefix "Hello beautiful world" ends with "world" — but search text has trailing comma.
+    # find_start must strip the comma and still find the match.
+    r = stp.find_start(page, "Hello beautiful world, and more words")
+    doc.close()
+    assert r is not None
+
+
 # ── find_end_on_page ──────────────────────────────────────────────────────────
 
 def test_find_end_on_page_found():
