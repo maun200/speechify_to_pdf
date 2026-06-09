@@ -351,10 +351,11 @@ def place_complete(
     text: str,
     color: tuple, color_name: str, note: str | None,
     verbose: bool,
-) -> bool:
+) -> tuple[bool, bool]:
     """
     Place a complete (non-truncated) highlight whose full text is known.
     Searches for the end across up to _MAX_SPAN_PAGES pages forward.
+    Returns (ok, partial) where partial=True when only the start line was annotated.
     """
     y_start = start_rect.y0
 
@@ -368,7 +369,7 @@ def place_complete(
                 span = f"p.{start_page+1}" if end_page == start_page else f"p.{start_page+1}–{end_page+1}"
                 note_tag = " [+note]" if note else ""
                 print(f"  ✓ {span} [{color_name}]{note_tag}: {text[:55]}")
-            return ok
+            return ok, False
 
     # End not found: fall back to start line only
     rects = _collect_lines(doc[start_page], y_start, start_rect.y1 + 2)
@@ -376,8 +377,8 @@ def place_complete(
         if verbose:
             note_tag = " [+note]" if note else ""
             print(f"  ~ p.{start_page+1} [{color_name}]{note_tag} (end not found, start line only): {text[:55]}")
-        return True
-    return False
+        return True, True
+    return False, False
 
 
 # ── Truncated-highlight placement ────────────────────────────────────────────
@@ -737,7 +738,7 @@ def main():
         print()  # blank separator before annotating output
 
     # ── Pass 2: annotate ─────────────────────────────────────────────────────
-    done, not_found = 0, []
+    done, partial, not_found = 0, 0, []
 
     for i, (page_idx, start_rect, h) in enumerate(located):
         if page_idx is None:
@@ -753,7 +754,7 @@ def main():
         color = COLOR_MAP.get(h["color"], DEFAULT_COLOR)
 
         if not h["truncated"]:
-            ok = place_complete(
+            ok, is_partial = place_complete(
                 doc, page_idx, start_rect,
                 h["text"], color, h["color"], h["note"], args.verbose,
             )
@@ -772,9 +773,12 @@ def main():
                 line_h, next_y, color, h["color"], h["note"], args.verbose,
                 h["text"],
             )
+            is_partial = False
 
         if ok:
             done += 1
+            if is_partial:
+                partial += 1
         else:
             not_found.append(h)
             if args.verbose:
@@ -793,7 +797,8 @@ def main():
     action = "would be transferred" if args.dry_run else "transferred"
     total = len(highlights)
     s = "" if total == 1 else "s"
-    print(f"Result: {done}/{total} highlight{s} {action}.")
+    partial_note = f", {partial} start-line only" if partial else ""
+    print(f"Result: {done}/{total} highlight{s} {action}{partial_note}.")
     _NOT_FOUND_LIMIT = 10
     if not_found:
         print(f"Not found ({len(not_found)}):")
