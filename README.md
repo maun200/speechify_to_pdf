@@ -83,6 +83,12 @@ speechify-to-pdf "Book.pdf _ Speechify.html" --list
 ```
 Prints a color breakdown and count of all highlights found in the HTML file — no PDF needed. Useful to verify the export before processing.
 
+**Inspect highlights with full text (list + verbose):**
+```bash
+speechify-to-pdf "Book.pdf _ Speechify.html" --list -v
+```
+Same as `--list`, but also prints each highlight's page, color, and text excerpt (up to 70 characters) so you can quickly scan the content before annotating.
+
 **Preview without writing any file (dry run):**
 ```bash
 speechify-to-pdf "Book.pdf _ Speechify.html" "Book.pdf" --dry-run
