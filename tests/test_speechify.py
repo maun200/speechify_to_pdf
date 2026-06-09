@@ -1521,6 +1521,31 @@ def test_list_mode_shows_truncated_count(tmp_path, capsys):
     assert "truncated" in captured.out
 
 
+def test_list_verbose_shows_highlight_texts(tmp_path, capsys):
+    """--list -v prints each highlight's page, color, and text excerpt."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 3</span></button>\n'
+        'aria-label="Highlight: Some important text . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>Some important text</span>\n'
+        'aria-label="Highlight: Another excerpt. Note: my note . Has context menu"'
+        ' class="bg-bg-highlight-notes-pink foo"><span>Another excerpt</span>',
+        encoding="utf-8",
+    )
+    _sys.argv = ["speechify-to-pdf", str(html), "--list", "-v"]
+    stp_module.main()
+    captured = capsys.readouterr()
+    assert "Some important text" in captured.out
+    assert "Another excerpt" in captured.out
+    assert "my note" in captured.out
+    assert "p." in captured.out
+    assert "[yellow]" in captured.out
+    assert "[pink]" in captured.out
+
+
 # ── _detect_page_offset ────────────────────────────────────────────────────────
 
 def _make_located(pairs):

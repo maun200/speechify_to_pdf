@@ -597,6 +597,12 @@ def main():
                 print(f"  ({trunc} truncated by Speechify sidebar)")
             if noted:
                 print(f"  ({noted} with attached notes)")
+            if args.verbose:
+                print()
+                for h in highlights:
+                    note_tag = f" [note: {h['note'][:40]}]" if h["note"] else ""
+                    trunc_tag = " (…)" if h["truncated"] else ""
+                    print(f"  p.{h['page']:4d} [{h['color']}]{trunc_tag}: {h['text'][:70]}{note_tag}")
         return
 
     if args.pdf:
