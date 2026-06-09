@@ -453,6 +453,9 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Dokumenter",              # Danish / Norwegian
         Path.home() / "Документы",               # Russian / Bulgarian
         Path.home() / "Документи",               # Ukrainian
+        Path.home() / "Documente",               # Romanian
+        Path.home() / "Dokumenti",               # Croatian / Serbian / Slovenian / Latvian / Bosnian
+        Path.home() / "Dokumendid",              # Estonian
         Path.home() / "Belgeler",                # Turkish
         Path.home() / "Asiakirjat",              # Finnish
         Path.home() / "Dokumentumok",            # Hungarian
@@ -490,6 +493,11 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Λήψεις",                  # Greek
         Path.home() / "Overførsler",             # Danish
         Path.home() / "Nedlastinger",            # Norwegian
+        Path.home() / "Descărcări",             # Romanian
+        Path.home() / "Prenosi",                 # Slovenian
+        Path.home() / "Preuzimanja",             # Croatian / Bosnian
+        Path.home() / "Lejupielādes",            # Latvian
+        Path.home() / "Allalaadimised",          # Estonian
         Path.home() / "下载",                    # Simplified Chinese
         Path.home() / "下載",                    # Traditional Chinese
         Path.home() / "ダウンロード",             # Japanese
