@@ -478,6 +478,7 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Schreibtisch",            # German
         Path.home() / "Bureau",                  # French
         Path.home() / "Escritorio",              # Spanish
+        Path.home() / "Área de Trabalho",        # Portuguese (macOS / Linux)
         Path.home() / "Scrivania",               # Italian
         Path.home() / "Bureaublad",              # Dutch
         Path.home() / "Skrivbord",               # Swedish
@@ -491,6 +492,7 @@ def guess_pdf_path(html_path: Path) -> Path | None:
         Path.home() / "Downloads",
         Path.home() / "Téléchargements",         # French
         Path.home() / "Descargas",               # Spanish / Latin American
+        Path.home() / "Transferências",          # European Portuguese (macOS)
         Path.home() / "Scaricati",               # Italian (macOS)
         Path.home() / "Pobrane",                 # Polish
         Path.home() / "Загрузки",                # Russian / Bulgarian
