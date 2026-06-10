@@ -2211,3 +2211,60 @@ def test_not_found_shows_fraction(tmp_path, capsys):
     captured = capsys.readouterr()
     # Must show "Not found (1/2):" so both the count and total are visible
     assert "Not found (1/2):" in captured.out
+
+
+def test_scanned_pdf_tip_shown_when_no_text(tmp_path, capsys):
+    """When all highlights are not found and the PDF has no selectable text, suggest OCR."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+    import fitz
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: xyzzy_absent_text . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>xyzzy_absent_text</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    # Create a PDF with an image page (no text layer)
+    doc = fitz.open()
+    doc.new_page()  # blank page — no text inserted
+    doc.save(str(pdf))
+    doc.close()
+
+    _sys.argv = ["speechify-to-pdf", str(html), str(pdf)]
+    with pytest.raises(SystemExit):
+        stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "scanned image" in captured.out or "selectable text" in captured.out
+
+
+def test_scanned_pdf_tip_not_shown_when_pdf_has_text(tmp_path, capsys):
+    """When all highlights are not found but the PDF has text, the OCR tip must NOT appear."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+    import fitz
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: xyzzy_absent_text . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>xyzzy_absent_text</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 100), "This PDF has real selectable text on the page.")
+    doc.save(str(pdf))
+    doc.close()
+
+    _sys.argv = ["speechify-to-pdf", str(html), str(pdf)]
+    with pytest.raises(SystemExit):
+        stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "scanned image" not in captured.out
+    assert "ocrmypdf" not in captured.out

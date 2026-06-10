@@ -866,6 +866,17 @@ def main():
                     "Try adjusting the offset — increase it if highlights appear too early, "
                     "decrease it if they appear too late."
                 )
+        if len(not_found) == total:
+            text_pages = sum(
+                1 for pi in range(min(3, doc.page_count))
+                if doc[pi].get_text("words")
+            )
+            if text_pages == 0:
+                print(
+                    "\nTip: The PDF has no selectable text — it may be a scanned image. "
+                    "speechify-to-pdf requires a text-layer PDF. Try running OCR first:\n"
+                    "  pip install ocrmypdf && ocrmypdf input.pdf output_ocr.pdf"
+                )
     if not_found and not args.verbose and not args.quiet:
         print("\nTip: run again with -v/--verbose to see per-highlight match details.")
 
