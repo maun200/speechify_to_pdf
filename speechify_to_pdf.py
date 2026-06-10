@@ -872,10 +872,11 @@ def main():
                 if doc[pi].get_text("words")
             )
             if text_pages == 0:
+                ocr_out = f"{pdf_path.stem}_ocr.pdf"
                 print(
                     "\nTip: The PDF has no selectable text — it may be a scanned image. "
                     "speechify-to-pdf requires a text-layer PDF. Try running OCR first:\n"
-                    "  pip install ocrmypdf && ocrmypdf input.pdf output_ocr.pdf"
+                    f"  pip install ocrmypdf && ocrmypdf \"{pdf_path.name}\" \"{ocr_out}\""
                 )
     if not_found and not args.verbose and not args.quiet:
         print("\nTip: run again with -v/--verbose to see per-highlight match details.")
