@@ -207,7 +207,7 @@ Dry run — no file written. Would save to: Algorithms_highlights.pdf
 → If the PDF has unnumbered front matter (cover, preface, TOC) that Speechify does not count, add `--page-offset N`. The tool automatically detects a consistent shift from the highlights it did locate and prints the suggested value.
 
 **`UnicodeDecodeError` when reading the HTML file**
-→ Your browser saved the page in a non-UTF-8 encoding. The script automatically falls back to `latin-1`; if you still see errors, re-save the page in your browser and ensure "UTF-8" is selected in the save dialog.
+→ This should not happen — the script tries UTF-8 first, then `cp1252` (for Windows smart quotes and em-dashes), then `latin-1` as a final catch-all that accepts any byte. If you do see this error, it likely means a corrupted file; try re-saving the page with **File → Save Page As → Webpage, Complete** in your browser.
 
 **Highlights appear on the wrong pages (shifted up or down)**
 → The PDF page numbering does not match Speechify's. Use `--page-offset N`:
