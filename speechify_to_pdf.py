@@ -613,7 +613,13 @@ def main():
                 )
                 return
         if not highlights:
-            print("No highlights found.")
+            print(
+                "No highlights found.\n"
+                "  • Was the highlights sidebar visible when you saved the page?\n"
+                "    Expand it (icon in the top-left), then save again with File → Save Page As.\n"
+                "  • Did you save as 'Webpage, Complete' (not 'HTML only')?\n"
+                "  • Is the correct HTML file specified?"
+            )
         else:
             color_counts = Counter(h["color"] for h in highlights)
             total = len(highlights)
