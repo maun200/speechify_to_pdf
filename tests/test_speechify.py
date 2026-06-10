@@ -2155,3 +2155,27 @@ def test_list_mode_colors_filter(tmp_path, capsys):
     assert "1 highlight" in captured.out
     assert "yellow" in captured.out
     assert "pink" not in captured.out
+
+
+def test_list_verbose_colors_filter(tmp_path, capsys):
+    """--list -v --colors shows per-highlight details for filtered colors only."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 2</span></button>\n'
+        'aria-label="Highlight: important yellow passage . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>important yellow passage</span>\n'
+        'aria-label="Highlight: pink detail . Has context menu"'
+        ' class="bg-bg-highlight-notes-pink foo"><span>pink detail</span>',
+        encoding="utf-8",
+    )
+
+    _sys.argv = ["speechify-to-pdf", str(html), "--list", "-v", "--colors", "yellow"]
+    stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "1 highlight" in captured.out
+    assert "important yellow passage" in captured.out
+    assert "pink detail" not in captured.out
