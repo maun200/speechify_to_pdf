@@ -10,6 +10,16 @@ _Automated daily log — last updated: 2026-06-10_
 - speechify_to_pdf: stars=0 forks=0 issues=0
 - kindle-highlights-to-pdf: stars=0 forks=0 issues=0
 
+**Ideas flagged for review today:** none
+
+---
+
+## 2026-06-10
+
+**GitHub stats:**
+- speechify_to_pdf: stars=0 forks=0 issues=0
+- kindle-highlights-to-pdf: stars=0 forks=0 issues=0
+
 **Maintenance check:**
 - All open issues: none
 - CI workflow: passing (syntax check + ruff + pytest + build on Python 3.10–3.14)
