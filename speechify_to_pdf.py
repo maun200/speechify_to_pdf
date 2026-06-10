@@ -80,6 +80,8 @@ _PAGE_NUM     = r"("   + _PAGE_NUM_PAT + ")"     # capturing group (for match.gr
 
 # Maximum pages a single highlight is allowed to span during end-search
 _MAX_SPAN_PAGES = 8
+# Maximum not-found highlights printed in the summary (rest shown as "... and N more")
+_NOT_FOUND_LIMIT = 10
 
 _ROMAN_MAP = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100, "d": 500, "m": 1000}
 _TRAILING_PUNCT = ".,;:!?)]}'\"" + "’”"
@@ -816,7 +818,6 @@ def main():
     s = "" if total == 1 else "s"
     partial_note = f", {partial} start-line only" if partial else ""
     print(f"Result: {done}/{total} highlight{s} {action}{partial_note}.")
-    _NOT_FOUND_LIMIT = 10
     if not_found:
         print(f"Not found ({len(not_found)}):")
         for h in not_found[:_NOT_FOUND_LIMIT]:
