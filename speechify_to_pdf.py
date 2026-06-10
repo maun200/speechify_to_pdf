@@ -601,7 +601,15 @@ def main():
         highlights = extract_highlights(html_path)
         if args.colors:
             list_color_filter = {c.strip().lower() for c in args.colors.split(",") if c.strip()}
+            all_colors = {h["color"] for h in highlights}
             highlights = [h for h in highlights if h["color"] in list_color_filter]
+            if not highlights:
+                available = ", ".join(sorted(all_colors)) if all_colors else "(none)"
+                print(
+                    f"No highlights found matching color(s): {', '.join(sorted(list_color_filter))}.\n"
+                    f"Colors present in this file: {available}"
+                )
+                return
         if not highlights:
             print("No highlights found.")
         else:
