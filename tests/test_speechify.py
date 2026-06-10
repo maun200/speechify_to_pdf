@@ -2130,3 +2130,28 @@ def test_unknown_color_warning_printed_to_stderr(tmp_path, capsys):
     captured = capsys.readouterr()
     assert "light-yellow" in captured.err
     assert "will render as yellow" in captured.err
+
+
+# ── --list --colors filtering ─────────────────────────────────────────────────
+
+def test_list_mode_colors_filter(tmp_path, capsys):
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: yellow text . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>yellow text</span>\n'
+        'aria-label="Highlight: pink text . Has context menu"'
+        ' class="bg-bg-highlight-notes-pink foo"><span>pink text</span>',
+        encoding="utf-8",
+    )
+
+    _sys.argv = ["speechify-to-pdf", str(html), "--list", "--colors", "yellow"]
+    stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "1 highlight" in captured.out
+    assert "yellow" in captured.out
+    assert "pink" not in captured.out

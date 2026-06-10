@@ -599,6 +599,9 @@ def main():
 
     if args.list:
         highlights = extract_highlights(html_path)
+        if args.colors:
+            list_color_filter = {c.strip().lower() for c in args.colors.split(",") if c.strip()}
+            highlights = [h for h in highlights if h["color"] in list_color_filter]
         if not highlights:
             print("No highlights found.")
         else:
