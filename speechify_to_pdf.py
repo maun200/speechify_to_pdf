@@ -423,6 +423,28 @@ def place_truncated(
 
 # ── Guess PDF path from HTML filename ────────────────────────────────────────
 
+def _read_xdg_user_dir(key: str) -> str | None:
+    """Read a single XDG user directory from ~/.config/user-dirs.dirs.
+
+    On Linux, xdg-user-dirs writes the configured paths to this file instead
+    of exporting them as environment variables, so os.environ misses them.
+    """
+    conf = Path.home() / ".config" / "user-dirs.dirs"
+    if not conf.exists():
+        return None
+    try:
+        text = conf.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    prefix = f"{key}="
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(prefix):
+            val = stripped[len(prefix):].strip('"')
+            return val.replace("$HOME", str(Path.home()))
+    return None
+
+
 def _iter_pdfs(d: Path, max_depth: int = 3):
     """Yield .pdf paths under d, stopping recursion at max_depth to avoid hangs."""
     for root, dirs, files in os.walk(d):
@@ -442,9 +464,9 @@ def _expected_pdf_name(html_path: Path) -> str:
 def guess_pdf_path(html_path: Path) -> Path | None:
     pdf_name_stem = _expected_pdf_name(html_path)
 
-    xdg_docs      = os.environ.get("XDG_DOCUMENTS_DIR")
-    xdg_downloads = os.environ.get("XDG_DOWNLOAD_DIR")
-    xdg_desktop   = os.environ.get("XDG_DESKTOP_DIR")
+    xdg_docs      = os.environ.get("XDG_DOCUMENTS_DIR") or _read_xdg_user_dir("XDG_DOCUMENTS_DIR")
+    xdg_downloads = os.environ.get("XDG_DOWNLOAD_DIR")  or _read_xdg_user_dir("XDG_DOWNLOAD_DIR")
+    xdg_desktop   = os.environ.get("XDG_DESKTOP_DIR")   or _read_xdg_user_dir("XDG_DESKTOP_DIR")
     search_dirs = [
         html_path.parent,
         html_path.parent.parent,

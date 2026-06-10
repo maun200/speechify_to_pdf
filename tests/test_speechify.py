@@ -2152,6 +2152,28 @@ def test_guess_pdf_path_thai_downloads(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_xdg_user_dirs_conf(tmp_path, monkeypatch):
+    """guess_pdf_path falls back to ~/.config/user-dirs.dirs when XDG env vars are unset."""
+    custom_docs = tmp_path / "MyDocs"
+    custom_docs.mkdir()
+    pdf = custom_docs / "ConfBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ConfBook _ Speechify.html"
+    html.touch()
+
+    conf_dir = tmp_path / ".config"
+    conf_dir.mkdir()
+    conf_file = conf_dir / "user-dirs.dirs"
+    conf_file.write_text(f'XDG_DOCUMENTS_DIR="{custom_docs}"\n', encoding="utf-8")
+
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.delenv("XDG_DOCUMENTS_DIR", raising=False)
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 # ── find_start ────────────────────────────────────────────────────────────────
 
 def _make_page(text: str, y: float = 100, width: int = 400, height: int = 300):
