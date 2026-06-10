@@ -1179,6 +1179,48 @@ def test_page_num_arabic_indic_digit_matches_and_normalizes():
     assert stp._parse_page_num("۱۲۳") == 123
 
 
+def test_page_num_devanagari_digit_normalizes():
+    # Devanagari digits ०-९ (U+0966–U+096F) must be normalised by _parse_page_num.
+    assert re.fullmatch(stp._PAGE_NUM_PAT, "४"), "_PAGE_NUM_PAT must match Devanagari digit"
+    assert stp._parse_page_num("४") == 4
+    assert stp._parse_page_num("४२") == 42
+
+
+def test_page_num_thai_digit_normalizes():
+    # Thai digits ๐-๙ (U+0E50–U+0E59) must be normalised by _parse_page_num.
+    assert re.fullmatch(stp._PAGE_NUM_PAT, "๔"), "_PAGE_NUM_PAT must match Thai digit"
+    assert stp._parse_page_num("๔") == 4
+    assert stp._parse_page_num("๔๒") == 42
+
+
+def test_extract_highlights_devanagari_digits(tmp_path):
+    # Speechify on Hindi books may emit Devanagari digits in page labels.
+    html = (
+        '<span>पृष्ठ ४२</span></button>\n'
+        'aria-label="Highlight: Hindi text . Has context menu" '
+        'class="bg-bg-highlight-notes-yellow foo"><span>Hindi text</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 42
+
+
+def test_extract_highlights_thai_digits(tmp_path):
+    # Speechify on Thai books may emit Thai digits in page labels.
+    html = (
+        '<span>หน้า ๔๒</span></button>\n'
+        'aria-label="Highlight: Thai text . Has context menu" '
+        'class="bg-bg-highlight-notes-blue foo"><span>Thai text</span>'
+    )
+    f = tmp_path / "test.html"
+    f.write_text(html, encoding="utf-8")
+    result = stp.extract_highlights(f)
+    assert len(result) == 1
+    assert result[0]["page"] == 42
+
+
 def test_extract_nbsp_entity_in_page_label(tmp_path):
     html = '<span>Page&#160;7</span></button>\n' \
            'aria-label="Highlight: Some text . Has context menu" class="bg-bg-highlight-notes-yellow foo"><span>Some text</span>'
@@ -1992,6 +2034,118 @@ def test_guess_pdf_path_estonian_downloads(tmp_path, monkeypatch):
     other = tmp_path / "elsewhere"
     other.mkdir()
     html = other / "EstonianDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_lithuanian_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "Dokumentai"
+    docs.mkdir()
+    pdf = docs / "LithuanianBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "LithuanianBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_lithuanian_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Atsiuntimai"
+    dl.mkdir()
+    pdf = dl / "LithuanianDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "LithuanianDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_vietnamese_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "Tài liệu"
+    docs.mkdir()
+    pdf = docs / "VietnameseBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "VietnameseBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_vietnamese_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Tải xuống"
+    dl.mkdir()
+    pdf = dl / "VietnameseDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "VietnameseDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_indonesian_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "Dokumen"
+    docs.mkdir()
+    pdf = docs / "IndonesianBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "IndonesianBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_indonesian_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "Unduhan"
+    dl.mkdir()
+    pdf = dl / "IndonesianDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "IndonesianDownloadBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_thai_documents(tmp_path, monkeypatch):
+    docs = tmp_path / "เอกสาร"
+    docs.mkdir()
+    pdf = docs / "ThaiBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ThaiBook _ Speechify.html"
+    html.touch()
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
+def test_guess_pdf_path_thai_downloads(tmp_path, monkeypatch):
+    dl = tmp_path / "ดาวน์โหลด"
+    dl.mkdir()
+    pdf = dl / "ThaiDownloadBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "ThaiDownloadBook _ Speechify.html"
     html.touch()
     monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
     found = stp.guess_pdf_path(html)
