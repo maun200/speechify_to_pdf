@@ -2179,3 +2179,35 @@ def test_list_verbose_colors_filter(tmp_path, capsys):
     assert "1 highlight" in captured.out
     assert "important yellow passage" in captured.out
     assert "pink detail" not in captured.out
+
+
+# ── not-found fraction in summary ────────────────────────────────────────────
+
+def test_not_found_shows_fraction(tmp_path, capsys):
+    """'Not found' header must show N/total so the user sees the fraction at a glance."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+    import fitz
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: hello world . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>hello world</span>\n'
+        'aria-label="Highlight: xyzzy_absent_notfound . Has context menu"'
+        ' class="bg-bg-highlight-notes-pink foo"><span>xyzzy_absent_notfound</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 100), "hello world")
+    doc.save(str(pdf))
+    doc.close()
+
+    _sys.argv = ["speechify-to-pdf", str(html), str(pdf)]
+    stp_module.main()
+
+    captured = capsys.readouterr()
+    # Must show "Not found (1/2):" so both the count and total are visible
+    assert "Not found (1/2):" in captured.out

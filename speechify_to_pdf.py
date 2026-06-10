@@ -837,7 +837,7 @@ def main():
     partial_note = f", {partial} start-line only" if partial else ""
     print(f"Result: {done}/{total} highlight{s} {action}{partial_note}.")
     if not_found:
-        print(f"Not found ({len(not_found)}):")
+        print(f"Not found ({len(not_found)}/{total}):")
         for h in not_found[:_NOT_FOUND_LIMIT]:
             page_info = (f"p.{h['page']} (PDF p.{h['page'] + args.page_offset}±2)"
                          if args.page_offset else f"p.{h['page']}")
