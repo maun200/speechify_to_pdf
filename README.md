@@ -42,7 +42,7 @@ Python 3.10 or newer.
 ### 1. Save the Speechify page in your browser
 
 1. Open the document in Speechify (app.speechify.com)
-2. In your browser: **File → Save Page As** (or `Ctrl+S`)
+2. In your browser: **File → Save Page As** (or `Ctrl+S` on Windows/Linux, `Cmd+S` on macOS)
 3. Choose format: **"Webpage, Complete"** (not HTML only)
 4. The result will look like:
    ```
