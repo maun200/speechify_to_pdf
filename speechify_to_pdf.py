@@ -2,7 +2,7 @@
 """
 speechify_to_pdf.py — Speechify highlights → PDF annotations
 
-Version: 1.2.2
+Version: 1.2.3
 
 Reads a saved Speechify HTML page ("Save Page As" in browser) and transfers
 all highlights as real PDF annotations into the local PDF file.
@@ -22,7 +22,7 @@ import re
 import sys
 from pathlib import Path
 
-__version__ = "1.2.2"
+__version__ = "1.2.3"
 
 try:
     import fitz  # PyMuPDF
@@ -58,13 +58,20 @@ _PAGE_WORDS = r"(?:Page|Seite|Página|Pàgina|Pagina|Pagine|Puslapis|Lappuse|Tud
 _WS     = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)+"   # one-or-more
 _WS_OPT = r"(?:[\s ]|&nbsp;|&#160;|&#[Xx]0*[Aa]0;)*"   # zero-or-more
 
-# Arabic-Indic (U+0660–U+0669) and Extended Arabic-Indic / Persian (U+06F0–U+06F9) digit
-# normalization: Speechify on Arabic/Persian books uses these digits in page labels.
-# We accept them in the regex and normalize to ASCII before int() parsing.
+# Non-ASCII digit normalization: Speechify may display page labels using the numeral
+# script of the document's language.  We normalise all recognised scripts to ASCII
+# before int() parsing so _parse_page_num never raises ValueError.
+# Covered scripts (matched by _PAGE_WORDS already):
+#   Arabic-Indic      U+0660–U+0669  Arabic (صفحة)
+#   Extended Ar-Indic U+06F0–U+06F9  Persian/Urdu (صفحه)
+#   Devanagari        U+0966–U+096F  Hindi (पृष्ठ)
+#   Thai              U+0E50–U+0E59  Thai (หน้า)
 _ARABIC_INDIC_NORM = str.maketrans(
     "٠١٢٣٤٥٦٧٨٩"   # U+0660–U+0669  Arabic-Indic
-    "۰۱۲۳۴۵۶۷۸۹",  # U+06F0–U+06F9  Extended Arabic-Indic (Persian/Urdu)
-    "01234567890123456789",
+    "۰۱۲۳۴۵۶۷۸۹"   # U+06F0–U+06F9  Extended Arabic-Indic (Persian/Urdu)
+    "०१२३४५६७८९"    # U+0966–U+096F  Devanagari (Hindi)
+    "๐๑๒๓๔๕๖๗๘๙",  # U+0E50–U+0E59  Thai
+    "0123456789" * 4,
 )
 
 # Matches decimal (ASCII + Arabic-Indic), alphanumeric (e.g. "A-1", "AB-5", "A.10"),
@@ -73,7 +80,7 @@ _ARABIC_INDIC_NORM = str.maketrans(
 # Order matters: alphanumeric must come before roman to avoid "D" being parsed as 500.
 # {1,2} prefix: supports double-letter appendix labels (AA-1, AB.5) used in some textbooks.
 # [-.]? separator: period separator (A.10) appears in some European/technical publishers.
-_DIGIT_PAT    = r"[0-9٠-٩۰-۹]"
+_DIGIT_PAT    = r"[0-9٠-٩۰-۹०-९๐-๙]"
 _PAGE_NUM_PAT = rf"{_DIGIT_PAT}+|[A-Za-z]{{1,2}}[-.]?{_DIGIT_PAT}+|[ivxlcdmIVXLCDM]+"
 _PAGE_NUM_NC  = r"(?:" + _PAGE_NUM_PAT + ")"     # non-capturing group (for splitting)
 _PAGE_NUM     = r"("   + _PAGE_NUM_PAT + ")"     # capturing group (for match.group(1))
