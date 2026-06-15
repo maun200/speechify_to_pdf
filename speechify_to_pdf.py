@@ -321,7 +321,9 @@ def _safe_highlight(page: fitz.Page, rects: list[fitz.Rect], color: tuple, note:
         annot = page.add_highlight_annot(valid)
         annot.set_colors(stroke=color)
         if note:
-            annot.set_info(content=note)
+            annot.set_info(title="Speechify", content=note)
+        else:
+            annot.set_info(title="Speechify")
         annot.update()
         return True
     except Exception:
