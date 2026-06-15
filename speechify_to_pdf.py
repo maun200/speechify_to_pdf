@@ -658,7 +658,10 @@ def main():
             s = "" if total == 1 else "s"
             trunc = sum(1 for h in highlights if h["truncated"])
             noted = sum(1 for h in highlights if h["note"])
-            print(f"{total} highlight{s} found in {html_path.name}:")
+            pages = [h["page"] for h in highlights]
+            p_min, p_max = min(pages), max(pages)
+            page_range = f"p.{p_min}" if p_min == p_max else f"pp.{p_min}–{p_max}"
+            print(f"{total} highlight{s} found in {html_path.name} ({page_range}):")
             for color, count in sorted(color_counts.items(), key=lambda x: -x[1]):
                 print(f"  {count:4d}  {color}")
             if trunc:
