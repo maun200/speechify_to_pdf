@@ -1,6 +1,25 @@
 # Project Status
 
-_Automated daily log — last updated: 2026-06-10_
+_Automated daily log — last updated: 2026-06-15_
+
+---
+
+## 2026-06-15
+
+**GitHub stats:**
+- speechify_to_pdf: stars=0 forks=0 issues=0
+- kindle-highlights-to-pdf: (not checked this run)
+
+**Maintenance check:**
+- All open issues: none
+- CI workflow: passing (syntax check + ruff + pytest + build on Python 3.10–3.14)
+- Repo topics: speechify, pdf, annotations, python, productivity, pdf-annotations, highlight, citavi, zotero — all present
+- README badges: CI, PyPI, License, Python version, Stars, Donate — all present
+- Code review: no German strings, --version flag present, ImportError in English, no known UX regressions
+- `_PAGE_WORDS` regex: covers 45+ languages including Arabic, Hebrew, Georgian, Armenian, Thai, CJK
+- Digit normalization: Arabic-Indic, Persian, Devanagari, Thai scripts all handled
+
+**Ideas flagged for review today:** none
 
 ---
 
