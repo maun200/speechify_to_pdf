@@ -8,6 +8,16 @@ _Automated daily log — last updated: 2026-06-16_
 
 **GitHub stats:**
 - speechify_to_pdf: stars=0 forks=0 issues=0
+- kindle-highlights-to-pdf: stars=0 forks=0 issues=0
+
+**Ideas flagged for review today:** none
+
+---
+
+## 2026-06-16
+
+**GitHub stats:**
+- speechify_to_pdf: stars=0 forks=0 issues=0
 
 **Maintenance check:**
 - All open issues: none
