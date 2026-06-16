@@ -1,6 +1,23 @@
 # Project Status
 
-_Automated daily log — last updated: 2026-06-15_
+_Automated daily log — last updated: 2026-06-16_
+
+---
+
+## 2026-06-16
+
+**GitHub stats:**
+- speechify_to_pdf: stars=0 forks=0 issues=0
+
+**Maintenance check:**
+- All open issues: none
+- CI workflow: passing (syntax check + ruff + pytest + build on Python 3.10–3.14)
+- Repo topics: speechify, pdf, annotations, python, productivity, pdf-annotations, highlight, citavi, zotero — all present
+- README badges: CI, PyPI, License, Python version, Stars, Donate — all present
+- Code review: no German strings, --version flag present, ImportError in English, no known UX regressions
+
+**Changes made today:**
+- Fixed inconsistent wording in --colors error: "Standard colors:" → "Valid colors:" to match argparse help text and unknown-color warning
 
 ---
 
