@@ -635,6 +635,12 @@ def main():
         highlights = extract_highlights(html_path)
         if args.colors:
             list_color_filter = {c.strip().lower() for c in args.colors.split(",") if c.strip()}
+            if not list_color_filter:
+                print(f"Error: --colors requires at least one color name. Valid colors: {', '.join(sorted(COLOR_MAP))}", file=sys.stderr)
+                return
+            unknown_list_colors = list_color_filter - COLOR_MAP.keys()
+            for uc in sorted(unknown_list_colors):
+                print(f"Warning: '{uc}' is not a known highlight color. Valid colors: {', '.join(sorted(COLOR_MAP))}", file=sys.stderr)
             all_colors = {h["color"] for h in highlights}
             highlights = [h for h in highlights if h["color"] in list_color_filter]
             if not highlights:

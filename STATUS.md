@@ -18,6 +18,7 @@ _Automated daily log — last updated: 2026-06-16_
 
 **Changes made today:**
 - Fixed inconsistent wording in --colors error: "Standard colors:" → "Valid colors:" to match argparse help text and unknown-color warning
+- Fixed `--list --colors` path: now warns about unknown/typo'd color names and handles empty filter, matching the behavior of the normal (non-list) path
 
 ---
 
