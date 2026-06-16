@@ -625,6 +625,8 @@ def main():
     html_path = Path(args.html).expanduser().resolve()
     if not html_path.exists():
         sys.exit(f"HTML file not found: {html_path}")
+    if html_path.is_dir():
+        sys.exit(f"Error: expected an HTML file but got a directory: {html_path}")
     if html_path.suffix.lower() == ".pdf":
         print(
             f"Warning: '{html_path.name}' looks like a PDF, not an HTML file.\n"
