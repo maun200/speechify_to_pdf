@@ -443,7 +443,8 @@ def _read_xdg_user_dir(key: str) -> str | None:
         stripped = line.strip()
         if stripped.startswith(prefix):
             val = stripped[len(prefix):].strip('"')
-            return val.replace("$HOME", str(Path.home()))
+            home = str(Path.home())
+            return val.replace("${HOME}", home).replace("$HOME", home)
     return None
 
 

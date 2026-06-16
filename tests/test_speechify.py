@@ -2174,6 +2174,28 @@ def test_guess_pdf_path_xdg_user_dirs_conf(tmp_path, monkeypatch):
     assert found == pdf
 
 
+def test_guess_pdf_path_xdg_user_dirs_conf_brace_home(tmp_path, monkeypatch):
+    """_read_xdg_user_dir expands ${HOME} brace notation (used by some Linux configs)."""
+    custom_docs = tmp_path / "BraceDocs"
+    custom_docs.mkdir()
+    pdf = custom_docs / "BraceBook.pdf"
+    pdf.touch()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    html = other / "BraceBook _ Speechify.html"
+    html.touch()
+
+    conf_dir = tmp_path / ".config"
+    conf_dir.mkdir()
+    conf_file = conf_dir / "user-dirs.dirs"
+    conf_file.write_text('XDG_DOCUMENTS_DIR="${HOME}/BraceDocs"\n', encoding="utf-8")
+
+    monkeypatch.setattr(stp.Path, "home", classmethod(lambda cls: tmp_path))
+    monkeypatch.delenv("XDG_DOCUMENTS_DIR", raising=False)
+    found = stp.guess_pdf_path(html)
+    assert found == pdf
+
+
 # ── find_start ────────────────────────────────────────────────────────────────
 
 def _make_page(text: str, y: float = 100, width: int = 400, height: int = 300):
