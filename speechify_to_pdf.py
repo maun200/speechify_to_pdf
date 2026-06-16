@@ -680,9 +680,12 @@ def main():
             if args.verbose:
                 print()
                 for h in highlights:
-                    note_tag = f" [note: {h['note'][:40]}]" if h["note"] else ""
+                    note_text = h["note"] or ""
+                    note_preview = note_text[:40] + ("…" if len(note_text) > 40 else "")
+                    note_tag = f" [note: {note_preview}]" if note_text else ""
                     trunc_tag = " (…)" if h["truncated"] else ""
-                    print(f"  p.{h['page']:4d} [{h['color']}]{trunc_tag}: {h['text'][:70]}{note_tag}")
+                    text_preview = h["text"][:70] + ("…" if len(h["text"]) > 70 and not h["truncated"] else "")
+                    print(f"  p.{h['page']:4d} [{h['color']}]{trunc_tag}: {text_preview}{note_tag}")
         return
 
     if args.pdf:

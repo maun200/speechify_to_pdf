@@ -2593,3 +2593,72 @@ def test_scanned_pdf_tip_not_shown_when_pdf_has_text(tmp_path, capsys):
     captured = capsys.readouterr()
     assert "scanned image" not in captured.out
     assert "ocrmypdf" not in captured.out
+
+
+# ── --list -v truncation indicators ──────────────────────────────────────────
+
+def test_list_verbose_long_text_shows_ellipsis(tmp_path, capsys):
+    """--list -v appends … when highlight text exceeds 70 chars."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    long_text = "A" * 71
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        f'aria-label="Highlight: {long_text} . Has context menu"'
+        f' class="bg-bg-highlight-notes-yellow foo"><span>{long_text}</span>',
+        encoding="utf-8",
+    )
+
+    _sys.argv = ["speechify-to-pdf", str(html), "--list", "-v"]
+    stp_module.main()
+
+    out = capsys.readouterr().out
+    assert "…" in out
+    assert long_text[:70] + "…" in out
+
+
+def test_list_verbose_short_text_no_ellipsis(tmp_path, capsys):
+    """--list -v does not append … when highlight text is 70 chars or fewer."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    short_text = "Short highlight"
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        f'aria-label="Highlight: {short_text} . Has context menu"'
+        f' class="bg-bg-highlight-notes-yellow foo"><span>{short_text}</span>',
+        encoding="utf-8",
+    )
+
+    _sys.argv = ["speechify-to-pdf", str(html), "--list", "-v"]
+    stp_module.main()
+
+    out = capsys.readouterr().out
+    assert short_text in out
+    # No display-truncation ellipsis (the Speechify-truncation tag (…) is only
+    # present for highlights ending in "..." or "…", which this one does not).
+    assert short_text + "…" not in out
+
+
+def test_list_verbose_long_note_shows_ellipsis(tmp_path, capsys):
+    """--list -v appends … to note preview when note exceeds 40 chars."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    long_note = "N" * 41
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        f'aria-label="Highlight: some text. Note: {long_note} . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>some text</span>',
+        encoding="utf-8",
+    )
+
+    _sys.argv = ["speechify-to-pdf", str(html), "--list", "-v"]
+    stp_module.main()
+
+    out = capsys.readouterr().out
+    assert "[note: " + "N" * 40 + "…]" in out
