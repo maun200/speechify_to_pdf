@@ -476,6 +476,86 @@ def test_guess_pdf_path_greek_documents(tmp_path, monkeypatch):
     assert found == pdf
 
 
+# ── _parse_page_num ───────────────────────────────────────────────────────────
+
+def test_parse_page_num_decimal():
+    assert stp._parse_page_num("42") == 42
+
+
+def test_parse_page_num_arabic_indic():
+    assert stp._parse_page_num("٤٢") == 42
+
+
+def test_parse_page_num_persian():
+    assert stp._parse_page_num("۴۲") == 42
+
+
+def test_parse_page_num_devanagari():
+    assert stp._parse_page_num("४२") == 42
+
+
+def test_parse_page_num_thai():
+    assert stp._parse_page_num("๔๒") == 42
+
+
+def test_parse_page_num_alphanumeric_hyphen():
+    assert stp._parse_page_num("A-1") == 1
+
+
+def test_parse_page_num_alphanumeric_period():
+    assert stp._parse_page_num("AB.5") == 5
+
+
+def test_parse_page_num_alphanumeric_no_sep():
+    assert stp._parse_page_num("B3") == 3
+
+
+def test_parse_page_num_roman_lowercase():
+    assert stp._parse_page_num("iv") == 4
+
+
+def test_parse_page_num_roman_uppercase():
+    assert stp._parse_page_num("XIV") == 14
+
+
+def test_parse_page_num_roman_complex():
+    assert stp._parse_page_num("xlii") == 42
+
+
+# ── _detect_page_offset ───────────────────────────────────────────────────────
+
+def test_detect_page_offset_consistent_shift():
+    # All highlights found with a consistent offset of 20 pages
+    located = [
+        (24, None, {"page": 5}),   # 24 - (5-1) = 20
+        (34, None, {"page": 15}),  # 34 - (15-1) = 20
+        (44, None, {"page": 25}),  # 44 - (25-1) = 20
+    ]
+    assert stp._detect_page_offset(located, 0) == 20
+
+
+def test_detect_page_offset_already_current():
+    # Consistent shift matches current_offset → no suggestion needed
+    located = [(24, None, {"page": 5})]  # offset = 24 - (5-1) = 20
+    assert stp._detect_page_offset(located, 20) is None
+
+
+def test_detect_page_offset_all_not_found():
+    # No highlights were located → no suggestion possible
+    located = [(None, None, {"page": 5}), (None, None, {"page": 10})]
+    assert stp._detect_page_offset(located, 0) is None
+
+
+def test_detect_page_offset_mixed_found_not_found():
+    # Some not found; located ones still yield a consistent shift
+    located = [
+        (None, None, {"page": 5}),
+        (24, None, {"page": 5}),   # offset = 20
+        (34, None, {"page": 15}),  # offset = 20
+    ]
+    assert stp._detect_page_offset(located, 0) == 20
+
+
 def test_guess_pdf_path_korean_documents(tmp_path, monkeypatch):
     docs = tmp_path / "문서"
     docs.mkdir()
