@@ -673,6 +673,9 @@ def main():
             print(f"{total} highlight{s} found in {html_path.name} ({page_range}):")
             for color, count in sorted(color_counts.items(), key=lambda x: -x[1]):
                 print(f"  {count:4d}  {color}")
+            unknown_html_colors = sorted(c for c in color_counts if c not in COLOR_MAP)
+            for uc in unknown_html_colors:
+                print(f"Warning: '{uc}' is an unrecognised highlight color — will render as yellow when transferred.", file=sys.stderr)
             if trunc:
                 print(f"  ({trunc} truncated by Speechify sidebar)")
             if noted:

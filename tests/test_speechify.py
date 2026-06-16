@@ -2674,6 +2674,27 @@ def test_list_verbose_short_text_no_ellipsis(tmp_path, capsys):
     assert short_text + "…" not in out
 
 
+def test_list_mode_unknown_color_warning(tmp_path, capsys):
+    """--list warns on stderr when the HTML contains an unrecognised highlight color."""
+    import sys as _sys
+    import speechify_to_pdf as stp_module
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: hello world . Has context menu"'
+        ' class="bg-bg-highlight-notes-teal foo"><span>hello world</span>',
+        encoding="utf-8",
+    )
+
+    _sys.argv = ["speechify-to-pdf", str(html), "--list"]
+    stp_module.main()
+
+    captured = capsys.readouterr()
+    assert "teal" in captured.err
+    assert "will render as yellow" in captured.err
+
+
 def test_list_verbose_long_note_shows_ellipsis(tmp_path, capsys):
     """--list -v appends … to note preview when note exceeds 40 chars."""
     import sys as _sys
