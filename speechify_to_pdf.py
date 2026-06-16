@@ -700,6 +700,8 @@ def main():
 
     if not pdf_path.exists():
         sys.exit(f"PDF file not found: {pdf_path}")
+    if pdf_path.is_dir():
+        sys.exit(f"Error: expected a PDF file but got a directory: {pdf_path}")
 
     output_path = (
         Path(args.output).expanduser().resolve()

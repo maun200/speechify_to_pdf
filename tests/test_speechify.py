@@ -1377,6 +1377,25 @@ def test_colors_filter_no_match_shows_available(tmp_path, capsys):
 
 # ── output-path safety guards ─────────────────────────────────────────────────
 
+def test_pdf_arg_is_directory_is_rejected(tmp_path, capsys):
+    """Passing a directory as the PDF argument must give a clear error, not a cryptic PyMuPDF failure."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text('<span>Page 1</span></button>\n', encoding="utf-8")
+    pdf_dir = tmp_path / "some_directory"
+    pdf_dir.mkdir()
+
+    with pytest.raises(SystemExit) as exc_info:
+        _sys.argv = ["speechify-to-pdf", str(html), str(pdf_dir)]
+        stp_module.main()
+
+    assert exc_info.value.code != 0
+    msg = str(exc_info.value.code)
+    assert "directory" in msg
+
+
 def test_output_path_same_as_html_is_rejected(tmp_path, monkeypatch, capsys):
     """Specifying the HTML file as -o output must be rejected before any work."""
     import speechify_to_pdf as stp_module
