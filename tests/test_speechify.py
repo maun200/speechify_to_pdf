@@ -1474,6 +1474,37 @@ def test_html_arg_with_pdf_extension_warns(tmp_path, capsys):
     assert "swap" in captured.err
 
 
+def test_output_non_pdf_extension_warns(tmp_path, capsys):
+    """Using -o with a non-.pdf extension must print a warning to stderr."""
+    import speechify_to_pdf as stp_module
+    import sys as _sys
+    import fitz
+
+    html = tmp_path / "Book _ Speechify.html"
+    html.write_text(
+        '<span>Page 1</span></button>\n'
+        'aria-label="Highlight: hello world . Has context menu"'
+        ' class="bg-bg-highlight-notes-yellow foo"><span>hello world</span>',
+        encoding="utf-8",
+    )
+    pdf = tmp_path / "Book.pdf"
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 100), "hello world")
+    doc.save(str(pdf))
+    doc.close()
+
+    _sys.argv = [
+        "speechify-to-pdf", str(html), str(pdf),
+        "--dry-run",
+        "-o", str(tmp_path / "output.txt"),
+    ]
+    stp_module.main()
+
+    captured = capsys.readouterr()
+    assert ".pdf extension" in captured.err
+
+
 # ── dry-run output-directory check ───────────────────────────────────────────
 
 def test_dry_run_skips_output_dir_writability_check(tmp_path, capsys):
