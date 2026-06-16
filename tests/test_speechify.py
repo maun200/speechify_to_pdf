@@ -478,7 +478,7 @@ def test_guess_pdf_path_greek_documents(tmp_path, monkeypatch):
 
 # ── _parse_page_num ───────────────────────────────────────────────────────────
 
-def test_parse_page_num_decimal():
+def test_parse_page_num_basic_decimal():
     assert stp._parse_page_num("42") == 42
 
 
