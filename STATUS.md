@@ -19,6 +19,7 @@ _Automated daily log — last updated: 2026-06-16_
 **Changes made today:**
 - Fixed inconsistent wording in --colors error: "Standard colors:" → "Valid colors:" to match argparse help text and unknown-color warning
 - Fixed `--list --colors` path: now warns about unknown/typo'd color names and handles empty filter, matching the behavior of the normal (non-list) path
+- Added 15 tests for `_parse_page_num` (Arabic-Indic/Persian/Devanagari/Thai digits, alphanumeric labels, roman numerals) and `_detect_page_offset` (consistent shift, already-current, all-not-found, mixed); suite now 211 tests
 
 ---
 
