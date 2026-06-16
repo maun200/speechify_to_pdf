@@ -724,6 +724,13 @@ def main():
             f"Did you mean: {suggested}"
         )
 
+    if args.output and output_path.suffix.lower() not in {".pdf", ""}:
+        print(
+            f"Warning: output file '{output_path.name}' does not have a .pdf extension. "
+            "The file will be a PDF regardless of its name.",
+            file=sys.stderr,
+        )
+
     if not args.dry_run:
         if not output_path.parent.exists():
             sys.exit(f"Error: output directory does not exist: {output_path.parent}")
